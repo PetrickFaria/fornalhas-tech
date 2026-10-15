@@ -11,7 +11,7 @@ Verificações concluídas
 - 9 receitas JSON presentes: Fornalha Tech, seis Núcleos Tech, Módulo Alto-Forno e Módulo Defumador.
 - 11 texturas PNG geradas na implementação inicial.
 - As 15 imagens de referência estão preservadas em reference/.
-- A execução de ./gradlew --version foi tentada com o wrapper do projeto; falhou ao conectar a services.gradle.org, com Network is unreachable.
+- A execução de ./gradlew --version foi tentada com o wrapper do projeto; no ambiente local falhou ao conectar a services.gradle.org; no GitHub Actions baixou Gradle 7.5.1, mas encontrou uma classe ausente no Wrapper JAR. A correção está no commit seguinte.
 - Não houve compilação Java nem teste dentro do Minecraft.
 
 Conclusão
