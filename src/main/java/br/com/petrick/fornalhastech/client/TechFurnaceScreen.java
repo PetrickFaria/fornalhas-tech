@@ -50,9 +50,9 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     @Override
     protected void renderLabels(com.mojang.blaze3d.vertex.PoseStack pose, int mx, int my) {
         font.draw(pose, title, (imageWidth - font.width(title)) / 2.0F, 5, 0xFFE6EAEC);
-        font.draw(pose, "Núcleo", 55 + (18 - font.width("Núcleo")) / 2.0F, 42, 0xFFE1E5E7);
-        font.draw(pose, "Módulo", 81 + (18 - font.width("Módulo")) / 2.0F, 42, 0xFFE1E5E7);
-        font.draw(pose, "Aprimorador", 107 + (18 - font.width("Aprimorador")) / 2.0F, 42, 0xFFE1E5E7);
+        drawCompactCentered(pose, "Núcleo", 65, 42);
+        drawCompactCentered(pose, "Módulo", 91, 42);
+        drawCompactCentered(pose, "Aprimorador", 117, 42);
         font.draw(pose, playerInventoryTitle, 7, inventoryLabelY, 0xFFD3DADD);
     }
 
@@ -97,6 +97,14 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         GuiComponent.fill(pose, leftPos + 162, topPos + 29, leftPos + 163, topPos + 37, color);
         GuiComponent.fill(pose, leftPos + 13, topPos + 111, leftPos + 24, topPos + 112, color);
         GuiComponent.fill(pose, leftPos + 13, topPos + 112, leftPos + 14, topPos + 117, color);
+    }
+
+    private void drawCompactCentered(com.mojang.blaze3d.vertex.PoseStack pose, String label, int centerX, int y) {
+        pose.pushPose();
+        pose.translate(centerX, y, 0);
+        pose.scale(0.7F, 0.7F, 1.0F);
+        font.draw(pose, label, -font.width(label) / 2.0F, 0, 0xFFE1E5E7);
+        pose.popPose();
     }
 
     private void renderSpecialSlotBorders(com.mojang.blaze3d.vertex.PoseStack pose) {
