@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,8 +30,10 @@ public class TechFurnaceBlock extends BaseEntityBlock {
  public static final BooleanProperty LIT=BlockStateProperties.LIT;
  public static final BooleanProperty CORE=BooleanProperty.create("core");
  public static final BooleanProperty COOKING=BooleanProperty.create("cooking");
- public TechFurnaceBlock(Properties p){super(p);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(LIT,false).setValue(CORE,false).setValue(COOKING,false));}
- @Override protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block,BlockState> b){b.add(FACING,LIT,CORE,COOKING);}
+ public static final IntegerProperty MODE=IntegerProperty.create("mode",0,2);
+ public static final IntegerProperty VISUAL_COLOR=IntegerProperty.create("visual_color",0,6);
+ public TechFurnaceBlock(Properties p){super(p);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(LIT,false).setValue(CORE,false).setValue(COOKING,false).setValue(MODE,0).setValue(VISUAL_COLOR,0));}
+ @Override protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block,BlockState> b){b.add(FACING,LIT,CORE,COOKING,MODE,VISUAL_COLOR);}
  @Nullable @Override public BlockState getStateForPlacement(BlockPlaceContext c){return defaultBlockState().setValue(FACING,c.getHorizontalDirection().getOpposite());}
  @Override public RenderShape getRenderShape(BlockState s){return RenderShape.MODEL;}
  @Nullable @Override public BlockEntity newBlockEntity(BlockPos p,BlockState s){return new TechFurnaceEntity(p,s);}
