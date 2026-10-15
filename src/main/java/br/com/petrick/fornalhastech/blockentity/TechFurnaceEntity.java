@@ -52,6 +52,7 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
  private int mode(){return items.get(4).is(ModItems.MODULE_BLAST_FURNACE.get())?1:items.get(4).is(ModItems.MODULE_SMOKER.get())?2:0;}
  private int coreTier(){ItemStack s=items.get(3);if(s.is(ModItems.CORE_BASE.get()))return 1;if(s.is(ModItems.CORE_IRON.get()))return 2;if(s.is(ModItems.CORE_GOLD.get()))return 3;if(s.is(ModItems.CORE_EMERALD.get()))return 4;if(s.is(ModItems.CORE_DIAMOND.get()))return 5;if(s.is(ModItems.CORE_NETHERITE.get()))return 6;return 0;}
  public int light(){return coreTier()==0?(burn>0?5:0):(cook>0?15:10);}
+ public int getCookTime(){return cook;} public int getCookTotal(){return cookTotal;} public int getBurnTime(){return burn;} public int getBurnTotal(){return burnTotal;}
  public void dropContents(){if(level==null||level.isClientSide)return;for(ItemStack s:items)if(!s.isEmpty()){net.minecraft.world.level.block.Block.popResource(level,worldPosition,s);}}
  @Override public void load(CompoundTag t){super.load(t);net.minecraft.world.ContainerHelper.loadAllItems(t,items);burn=t.getInt("Burn");burnTotal=t.getInt("BurnTotal");cook=t.getInt("Cook");cookTotal=t.getInt("CookTotal");color=t.getInt("Color");}
  @Override protected void saveAdditional(CompoundTag t){super.saveAdditional(t);net.minecraft.world.ContainerHelper.saveAllItems(t,items);t.putInt("Burn",burn);t.putInt("BurnTotal",burnTotal);t.putInt("Cook",cook);t.putInt("CookTotal",cookTotal);t.putInt("Color",color);}
