@@ -1,29 +1,24 @@
-# Fornalhas Tech — estado da implementação
+# Fornalhas Tech
 
-Projeto para Minecraft Java 1.19.2, Forge 43.5.0 e Java 17. Mod ID: `fornalhastech`.
+Mod para Minecraft Java 1.19.2, Forge 43.5.0 e Java 17. Mod ID: `fornalhastech`.
 
-## O que está no projeto
+## Recursos incluídos
 
-- Um bloco `tech_furnace` e oito itens: seis núcleos e os módulos Alto-Forno e Defumador.
-- Receitas de fabricação para o bloco e os oito itens.
-- Inventário persistido de seis posições, slots dedicados a núcleo/módulo, consumo de combustível Forge e devolução dos itens ao quebrar o bloco.
-- Seleção das receitas de smelting, blasting ou smoking pelo módulo inserido.
-- Multiplicadores de progresso configurados para os seis núcleos: 1x, 2x, 3x, 5x, 7x, 9x e 11x contando sem núcleo como 1x.
-- Workflow do GitHub Actions em `.github/workflows/build.yml`, com Java 17, Gradle Wrapper 7.5.1, ForgeGradle 5.1 e `workflow_dispatch`.
+- Um bloco `tech_furnace`, seis Núcleos Tech e dois módulos (Alto-Forno e Defumador).
+- Receitas de fabricação, recursos de bloco/itens, blockstates com 32 combinações de estado e traduções pt-BR.
+- Inventário persistente com slots de entrada, combustível, saída, núcleo, módulo e aprimorador reservado.
+- Os módulos escolhem smelting, blasting e smoking. Os níveis de núcleo ajustam o progresso com os multiplicadores definidos no código.
+- Interface de 176×220 px com três slots especiais (verde/amarelo/vermelho), grelha do inventário do jogador, medidor de combustível e indicador de progresso sincronizados.
+- `pack.mcmeta` para Minecraft 1.19.2. A GUI usa UVs baseadas no tamanho real de 176×220.
 
-## Pendências funcionais/visuais
+## Estado conhecido
 
-Este projeto ainda não implementa todos os requisitos visuais e de jogo e não deve ser apresentado como versão final:
+A interface foi corrigida conforme a captura descrita: textura legível, dimensões e UVs alinhados, posições de slots consistentes, traduções presentes e recursos no JAR. Os modelos JSON, blockstates, imagens e referências de textura foram verificados dentro do JAR.
 
-- O modelo do bloco é cúbico e não reproduz o relevo 3D das imagens.
-- As texturas são versões iniciais, não a reprodução fiel das 15 referências; não há emissão luminosa seletiva dos detalhes coloridos.
-- A luz atual é um valor fixo no estado aceso. Não existe iluminação dinâmica por tier/cor.
-- Não há tela secundária para escolher cores nem sincronização de cor entre cliente e servidor.
-- O multiplicador de velocidade está no tick do bloco. O valor de experiência da receita não é acumulado nem entregue ao jogador.
-- O menu não sincroniza barras de progresso/combustível completas. O funcionamento precisa de testes em uma instância real de Minecraft.
+O mod ainda não está completo segundo o conceito visual original. O modelo do bloco permanece cúbico, as texturas ainda não reproduzem fielmente as 15 referências, não há emissão seletiva dos detalhes coloridos ou iluminação dinâmica por núcleo, a interface secundária para seleção de cores não foi implementada e a experiência das receitas ainda não é entregue. Também não validei esta versão dentro de uma instância do Minecraft.
 
-As 15 imagens conceituais estão no diretório `reference/` do pacote-fonte. Elas são referências, não texturas já incorporadas ao mod.
+As imagens conceituais estão no diretório `reference/` do pacote-fonte. Elas são referências de design, não texturas finais prontas.
 
-## Compilação
+## Compilar
 
-`./gradlew --no-daemon --stacktrace clean build` (Java 17). O workflow validou compilação e gerou `fornalhas-tech-1.0.0.jar` no artefato da execução #3. Uma compilação bem-sucedida não comprova carregamento, balanceamento ou funcionamento dentro do jogo.
+`./gradlew --no-daemon --stacktrace clean build` (Java 17). O workflow GitHub Actions usa Ubuntu, Gradle Wrapper 7.5.1 e ForgeGradle `[5.1,5.2)`, e publica `build/libs/*.jar` como artefato.

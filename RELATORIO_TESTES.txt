@@ -1,29 +1,31 @@
-FORNALHAS TECH — RELATÓRIO DE VERIFICAÇÃO
+FORNALHAS TECH — RELATÓRIO DE CORREÇÃO DA GUI E RECURSOS
 Data: 15/10/2026
 
-Ambiente de build
-- Java 17 (Temurin 17.0.20) no GitHub Actions Ubuntu 24.04.
-- Gradle Wrapper 7.5.1.
-- Forge 1.19.2-43.5.0 e ForgeGradle [5.1,5.2).
+Correções no commit e059a09
+- GUI redesenhada em 176×220 px, opaca, com slots de componente coloridos, slots do processamento, 27 slots de inventário e nove da hotbar.
+- Screen agora desenha a textura usando as dimensões reais (176×220), em vez do atlas padrão de 256×256.
+- Menu alinhado com a imagem. Indicadores de queima e progresso recebem valores via DataSlot.
+- `pack.mcmeta` adicionado com pack_format 9.
+- Nome do contêiner e nome do bloco pt-BR conferidos; os nomes dos seis núcleos e dois módulos permanecem no arquivo de idioma.
 
-Testes/verificações executados
-- Parse dos arquivos JSON de recursos, modelos, receitas e loot table: aprovado anteriormente.
-- Execução #1: falhou no wrapper incompleto (classe ZipSlip ausente); wrapper corrigido.
-- Execução #2: o Gradle iniciou e a compilação apontou APIs incompatíveis com Forge 1.19.2; código corrigido.
-- Execução #3: workflow Build Fornalhas Tech concluiu com sucesso no Ubuntu; `compileJava`, `jar` e reobfuscação foram concluídos e o upload do artefato terminou sem erro.
-- Artefato: `fornalhas-tech-64b3ab8951847929387aeac7540e8b0bc069872e`; JAR incluído: `fornalhas-tech-1.0.0.jar`.
+Verificações executadas
+- Parse JSON das traduções, modelos e blockstates: aprovado.
+- Verificação de caminhos das texturas apontadas pelos modelos: nenhuma referência ausente.
+- `tech_furnace` contém 32 variantes de blockstate.
+- Workflow #5, commit e059a09, Ubuntu/Java 17: compilação e upload do artefato concluídos com sucesso.
+- JAR extraído do artefato e verificado: arquivo ZIP íntegro; `pack.mcmeta`, GUI 176×220 RGBA, 11 modelos JSON, 32 variantes de blockstate e recursos de idioma/textura presentes.
+- O idioma no JAR contém `block.fornalhastech.tech_furnace` = `Fornalha Tech`.
 
 Não testado dentro do Minecraft
-- Instalação/inicialização do cliente com Forge 43.5.0.
-- Colocação do bloco, interação com GUI, receitas, troca dos modos, velocidades e persistência em salvar/recarregar/quebrar.
-- Luz/emissão no mundo e comportamento visual multiplayer.
+- Não executei uma instância do jogo para conferir a tela corrigida visualmente ou verificar a inicialização de todos os recursos.
+- Não foram feitos testes de modo, progressão, persistência, iluminação ou multiplayer nesta sessão.
 
-Pendências conhecidas
-- Modelo 3D detalhado e texturas fiéis às 15 referências.
-- Emissividade apenas nos detalhes coloridos e iluminação por núcleo.
-- Interface secundária para seleção/sincronização das cores.
-- Integração dos dados de experiência das receitas.
-- Barras de progresso e combustível sincronizadas no menu.
+Pendências anteriores
+- Modelagem 3D detalhada e reprodução fiel das 15 imagens.
+- Brilho emissivo apenas nos detalhes coloridos e iluminação dinâmica baseada no núcleo.
+- Tela secundária para seleção/sincronização de cores.
+- Acúmulo e entrega da experiência das receitas.
+- Testes funcionais e visuais em jogo.
 
 Conclusão
-O código compila e o JAR foi produzido, mas a implementação está incompleta e ainda não foi validada em jogo. Não considerar este build como versão final funcional.
+As falhas descritas de escala/organização da GUI e presença dos metadados de recursos foram corrigidas e o JAR novo compila. Não declarar o mod como finalizado: permanecem as pendências listadas e não houve teste dentro do Minecraft.
