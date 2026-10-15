@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "nNn",
+    "nDn",
+    "nnn"
+  ],
+  "key": {
+    "n": {
+      "item": "minecraft:iron_nugget"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "D": {
+      "item": "fornalhastech:core_diamond"
+    }
+  },
+  "result": {
+    "item": "fornalhastech:core_netherite"
+  }
+}

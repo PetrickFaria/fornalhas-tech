@@ -1,0 +1,12 @@
+{
+  "block.fornalhastech.tech_furnace": "Fornalha Tech",
+  "item.fornalhastech.core_base": "Núcleo Tech (Base)",
+  "item.fornalhastech.core_iron": "Núcleo Tech (Ferro)",
+  "item.fornalhastech.core_gold": "Núcleo Tech (Ouro)",
+  "item.fornalhastech.core_emerald": "Núcleo Tech (Esmeralda)",
+  "item.fornalhastech.core_diamond": "Núcleo Tech (Diamante)",
+  "item.fornalhastech.core_netherite": "Núcleo Tech (Netherita)",
+  "item.fornalhastech.module_blast_furnace": "Módulo Alto-Forno",
+  "item.fornalhastech.module_smoker": "Módulo Defumador",
+  "container.fornalhastech.tech_furnace": "Fornalha Tech"
+}

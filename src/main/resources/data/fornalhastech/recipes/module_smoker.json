@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iri",
+    "rSr",
+    "iri"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "minecraft:smoker"
+    }
+  },
+  "result": {
+    "item": "fornalhastech:module_smoker"
+  }
+}

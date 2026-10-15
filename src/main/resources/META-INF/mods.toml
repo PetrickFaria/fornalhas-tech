@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+license="All Rights Reserved"
+[[mods]]
+modId="fornalhastech"
+version="${version}"
+displayName="Fornalhas Tech"
+authors="Petrick Faria"
+description='''Uma fornalha modular com núcleos progressivos e modos de alto-forno e defumador.'''
+[[dependencies.fornalhastech]]
+modId="forge"
+mandatory=true
+versionRange="[43.5.0,44)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.fornalhastech]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.19.2,1.20)"
+ordering="NONE"
+side="BOTH"

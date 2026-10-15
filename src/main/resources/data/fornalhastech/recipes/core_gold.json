@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "nGn",
+    "nIn",
+    "nnn"
+  ],
+  "key": {
+    "n": {
+      "item": "minecraft:iron_nugget"
+    },
+    "G": {
+      "item": "minecraft:gold_block"
+    },
+    "I": {
+      "item": "fornalhastech:core_iron"
+    }
+  },
+  "result": {
+    "item": "fornalhastech:core_gold"
+  }
+}

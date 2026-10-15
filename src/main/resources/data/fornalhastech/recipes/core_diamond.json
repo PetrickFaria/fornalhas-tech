@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "nDn",
+    "nEn",
+    "nnn"
+  ],
+  "key": {
+    "n": {
+      "item": "minecraft:iron_nugget"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    },
+    "E": {
+      "item": "fornalhastech:core_emerald"
+    }
+  },
+  "result": {
+    "item": "fornalhastech:core_diamond"
+  }
+}

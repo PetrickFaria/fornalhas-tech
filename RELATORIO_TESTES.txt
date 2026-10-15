@@ -1,0 +1,18 @@
+FORNALHAS TECH — RELATÓRIO DE VERIFICAÇÃO
+Data: 15/10/2026
+
+Ambiente
+- Java: OpenJDK 17.0.20 disponível.
+- Gradle: comando global ausente.
+- Forge/Minecraft: dependências não baixadas localmente.
+
+Verificações concluídas
+- Os 23 arquivos JSON de recursos/receitas/loot/modelos foram parseados sem erro.
+- 9 receitas JSON presentes: Fornalha Tech, seis Núcleos Tech, Módulo Alto-Forno e Módulo Defumador.
+- 11 texturas PNG geradas na implementação inicial.
+- As 15 imagens de referência estão preservadas em reference/.
+- A execução de ./gradlew --version foi tentada com o wrapper do projeto; falhou ao conectar a services.gradle.org, com Network is unreachable.
+- Não houve compilação Java nem teste dentro do Minecraft.
+
+Conclusão
+Não há JAR compilado. A estrutura, receitas e recursos foram produzidos, mas o projeto ainda não deve ser instalado como mod funcional. Ver pendências no README.md.
