@@ -7,3 +7,11 @@ minecraft { mappings channel: 'official', version: '1.19.2'; runs { client { wor
 repositories { mavenCentral() }
 dependencies { minecraft 'net.minecraftforge:forge:1.19.2-43.5.0' }
 processResources { inputs.property 'version', project.version; filesMatching('META-INF/mods.toml') { expand 'version': project.version } }
+
+// Keep the emissive white lens texture explicitly packaged with the block model.
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from('src/main/resources/assets/fornalhastech/textures/block/tech_lens.png') {
+        into 'assets/fornalhastech/textures/block'
+    }
+}
