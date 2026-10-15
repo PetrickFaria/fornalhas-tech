@@ -22,3 +22,7 @@ As imagens conceituais estão no diretório `reference/` do pacote-fonte. Elas s
 ## Compilar
 
 `./gradlew --no-daemon --stacktrace clean build` (Java 17). O workflow GitHub Actions usa Ubuntu, Gradle Wrapper 7.5.1 e ForgeGradle `[5.1,5.2)`, e publica `build/libs/*.jar` como artefato.
+
+## Versionamento
+
+A versão única do mod fica em `mod_version` no `gradle.properties`. Em cada nova atualização entregue, incremente o último componente (por exemplo, `1.0.4` para `1.0.5`). O Gradle usa essa propriedade para o nome do JAR e para `mods.toml`; o GitHub Actions lê a mesma propriedade para nomear o artefato.

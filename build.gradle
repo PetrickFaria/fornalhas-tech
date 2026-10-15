@@ -1,17 +1,9 @@
 plugins { id 'eclipse'; id 'idea'; id 'maven-publish'; id 'net.minecraftforge.gradle' version '[5.1,5.2)' }
 group = 'br.com.petrick'
-version = '1.0.0'
+version = project.property('mod_version')
 base { archivesName = 'fornalhas-tech' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 minecraft { mappings channel: 'official', version: '1.19.2'; runs { client { workingDirectory project.file('run'); property 'forge.logging.level','info'; mods { fornalhastech { source sourceSets.main } } }; server { workingDirectory project.file('run'); property 'forge.logging.level','info'; mods { fornalhastech { source sourceSets.main } } } } }
 repositories { mavenCentral() }
 dependencies { minecraft 'net.minecraftforge:forge:1.19.2-43.5.0' }
 processResources { inputs.property 'version', project.version; filesMatching('META-INF/mods.toml') { expand 'version': project.version } }
-
-// Keep the emissive white lens texture explicitly packaged with the block model.
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from('src/main/resources/assets/fornalhastech/textures/block/tech_lens.png') {
-        into 'assets/fornalhastech/textures/block'
-    }
-}

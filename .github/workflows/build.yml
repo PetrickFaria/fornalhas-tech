@@ -30,6 +30,15 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: gradle
 
+      - name: Read mod version
+        run: |
+          MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          if [ -z "$MOD_VERSION" ]; then
+            echo "mod_version is not set in gradle.properties" >&2
+            exit 1
+          fi
+          echo "MOD_VERSION=$MOD_VERSION" >> "$GITHUB_ENV"
+
       - name: Prepare Gradle Wrapper
         run: chmod +x ./gradlew
 
@@ -39,7 +48,7 @@ jobs:
       - name: Upload compiled JAR
         uses: actions/upload-artifact@v4
         with:
-          name: fornalhas-tech-${{ github.sha }}
-          path: build/libs/*.jar
+          name: fornalhas-tech-${{ env.MOD_VERSION }}-${{ github.sha }}
+          path: build/libs/fornalhas-tech-${{ env.MOD_VERSION }}.jar
           if-no-files-found: error
           retention-days: 30
