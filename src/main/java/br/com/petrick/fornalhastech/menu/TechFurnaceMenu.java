@@ -49,7 +49,7 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
    @Override public void set(int value){switch(index){case 0->syncedCook=value;case 1->syncedCookTotal=value;case 2->syncedBurn=value;default->syncedBurnTotal=value;}}
   };
  }
- public int getCookProgress(){return syncedCookTotal<=0?0:Math.min(24,syncedCook*24/syncedCookTotal);}
+ public int getCookProgress(){return syncedCookTotal<=0?0:Math.min(18,syncedCook*18/syncedCookTotal);}
  public int getBurnProgress(){return syncedBurnTotal<=0?0:Math.min(14,syncedBurn*14/syncedBurnTotal);}
  private static boolean isCore(ItemStack s){return s.is(ModItems.CORE_BASE.get())||s.is(ModItems.CORE_IRON.get())||s.is(ModItems.CORE_GOLD.get())||s.is(ModItems.CORE_EMERALD.get())||s.is(ModItems.CORE_DIAMOND.get())||s.is(ModItems.CORE_NETHERITE.get());}
  private static boolean isModule(ItemStack s){return s.is(ModItems.MODULE_BLAST_FURNACE.get())||s.is(ModItems.MODULE_SMOKER.get());}
