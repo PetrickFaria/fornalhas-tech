@@ -1,18 +1,29 @@
 FORNALHAS TECH — RELATÓRIO DE VERIFICAÇÃO
 Data: 15/10/2026
 
-Ambiente
-- Java: OpenJDK 17.0.20 disponível.
-- Gradle: comando global ausente.
-- Forge/Minecraft: dependências não baixadas localmente.
+Ambiente de build
+- Java 17 (Temurin 17.0.20) no GitHub Actions Ubuntu 24.04.
+- Gradle Wrapper 7.5.1.
+- Forge 1.19.2-43.5.0 e ForgeGradle [5.1,5.2).
 
-Verificações concluídas
-- Os 23 arquivos JSON de recursos/receitas/loot/modelos foram parseados sem erro.
-- 9 receitas JSON presentes: Fornalha Tech, seis Núcleos Tech, Módulo Alto-Forno e Módulo Defumador.
-- 11 texturas PNG geradas na implementação inicial.
-- As 15 imagens de referência estão preservadas em reference/.
-- A execução de ./gradlew --version foi tentada com o wrapper do projeto; no ambiente local falhou ao conectar a services.gradle.org; no GitHub Actions baixou Gradle 7.5.1, mas encontrou uma classe ausente no Wrapper JAR. A correção está no commit seguinte.
-- Não houve compilação Java nem teste dentro do Minecraft.
+Testes/verificações executados
+- Parse dos arquivos JSON de recursos, modelos, receitas e loot table: aprovado anteriormente.
+- Execução #1: falhou no wrapper incompleto (classe ZipSlip ausente); wrapper corrigido.
+- Execução #2: o Gradle iniciou e a compilação apontou APIs incompatíveis com Forge 1.19.2; código corrigido.
+- Execução #3: workflow Build Fornalhas Tech concluiu com sucesso no Ubuntu; `compileJava`, `jar` e reobfuscação foram concluídos e o upload do artefato terminou sem erro.
+- Artefato: `fornalhas-tech-64b3ab8951847929387aeac7540e8b0bc069872e`; JAR incluído: `fornalhas-tech-1.0.0.jar`.
+
+Não testado dentro do Minecraft
+- Instalação/inicialização do cliente com Forge 43.5.0.
+- Colocação do bloco, interação com GUI, receitas, troca dos modos, velocidades e persistência em salvar/recarregar/quebrar.
+- Luz/emissão no mundo e comportamento visual multiplayer.
+
+Pendências conhecidas
+- Modelo 3D detalhado e texturas fiéis às 15 referências.
+- Emissividade apenas nos detalhes coloridos e iluminação por núcleo.
+- Interface secundária para seleção/sincronização das cores.
+- Integração dos dados de experiência das receitas.
+- Barras de progresso e combustível sincronizadas no menu.
 
 Conclusão
-Não há JAR compilado. A estrutura, receitas e recursos foram produzidos, mas o projeto ainda não deve ser instalado como mod funcional. Ver pendências no README.md.
+O código compila e o JAR foi produzido, mas a implementação está incompleta e ainda não foi validada em jogo. Não considerar este build como versão final funcional.
