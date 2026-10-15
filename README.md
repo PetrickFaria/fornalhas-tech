@@ -8,7 +8,7 @@ Mod para Minecraft Java 1.19.2, Forge 43.5.0 e Java 17. Mod ID: `fornalhastech`.
 - Receitas de fabricação, recursos de bloco/itens, blockstates com 32 combinações de estado e traduções pt-BR.
 - Inventário persistente com slots de entrada, combustível, saída, núcleo, módulo e aprimorador reservado.
 - Os módulos escolhem smelting, blasting e smoking. Os níveis de núcleo ajustam o progresso com os multiplicadores definidos no código.
-- Interface de 176×220 px com três slots especiais (verde/amarelo/vermelho), grelha do inventário do jogador, medidor de combustível e indicador de progresso sincronizados.
+- Interface de 176×220 px com três slots especiais (verde/amarelo/vermelho), grelha do inventário do jogador, medidor de combustível e indicador de progresso sincronizados, com preenchimento limitado à faixa da textura.
 - `pack.mcmeta` para Minecraft 1.19.2. A GUI usa UVs baseadas no tamanho real de 176×220.
 
 ## Estado conhecido

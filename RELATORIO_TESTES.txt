@@ -1,7 +1,7 @@
 FORNALHAS TECH — RELATÓRIO DE CORREÇÃO DA GUI E RECURSOS
 Data: 15/10/2026
 
-Correções no commit e059a09
+Correções nos commits e059a09 e eb502db
 - GUI redesenhada em 176×220 px, opaca, com slots de componente coloridos, slots do processamento, 27 slots de inventário e nove da hotbar.
 - Screen agora desenha a textura usando as dimensões reais (176×220), em vez do atlas padrão de 256×256.
 - Menu alinhado com a imagem. Indicadores de queima e progresso recebem valores via DataSlot.
@@ -13,6 +13,7 @@ Verificações executadas
 - Verificação de caminhos das texturas apontadas pelos modelos: nenhuma referência ausente.
 - `tech_furnace` contém 32 variantes de blockstate.
 - Workflow #5, commit e059a09, Ubuntu/Java 17: compilação e upload do artefato concluídos com sucesso.
+- Workflow #7, commit eb502db: compilação bem-sucedida após limitar a barra de progresso à área visível.
 - JAR extraído do artefato e verificado: arquivo ZIP íntegro; `pack.mcmeta`, GUI 176×220 RGBA, 11 modelos JSON, 32 variantes de blockstate e recursos de idioma/textura presentes.
 - O idioma no JAR contém `block.fornalhastech.tech_furnace` = `Fornalha Tech`.
 
