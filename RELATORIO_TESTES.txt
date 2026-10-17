@@ -1,4 +1,4 @@
-Fornalhas Tech 1.0.11 — verificações desta entrega
+Fornalhas Tech 1.0.12 — verificações desta entrega
 
 Base: branch main, commit 3b7fb2c2b11742331803198db783da4f92f7fd65 (1.0.10).
 Minecraft 1.19.2, Forge 43.5.0, Java 17.
@@ -7,7 +7,7 @@ Implementação:
 - Interface principal usa a imagem fornecida como fundo (352x459, desenhada centralizada em 176x230), mantendo a grade e as proporções da referência.
 - Personalização usa a imagem fornecida (352x177); os sete botões desbloqueiam conforme a progressão dos seis núcleos, e a validação é repetida no servidor.
 - Texturas de face fornecidas são preservadas sem modificação em textures/block/source, RGBA 64x64. Pixels RGB (237,28,36) isolam somente os inlays emissivos; preto/cinza permanecem na camada de face e não são tintados.
-- Geometria base: cubo com camada interna 0,125 unidade atrás do plano externo; 12 perfis de aresta com avanço r=0,125 unidade; 8 tampas de vértice com avanço 2r=0,25 unidade. Alto-forno e defumador mantêm os modelos atuais.
+- Geometria base: cubo com camada interna 0,125 unidade atrás do plano externo; máscaras emissivas em lâminas com espessura positiva de 0,001 unidade; 12 perfis de aresta com avanço r=0,125 unidade; 8 tampas de vértice com avanço 2r=0,25 unidade. Alto-forno e defumador mantêm os modelos atuais.
 - Energia: capacidade 32.000 FE; combustão converte 10 FE por tick de queima vanilla; cada ponto de progresso usa 10 FE, multiplicado pela velocidade do núcleo. A queima pausa ao ficar sem espaço para um incremento completo, preservando o combustível iniciado. Energia, queima, progresso e seleção visual são persistidos.
 - Níveis de luz: sem núcleo 0/5; com núcleo 5/10 (inativo/ativo). Atividade significa geração ou processamento.
 - Módulos seguem utilizáveis sem slot novo na GUI: transferência rápida os instala, agachar + usar com mão vazia os remove; agachar + usar com o módulo o instala.
