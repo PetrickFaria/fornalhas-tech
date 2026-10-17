@@ -1,4 +1,4 @@
-Fornalhas Tech 1.0.12 — verificações desta entrega
+Fornalhas Tech 1.0.13 — verificações desta entrega
 
 Base: branch main, commit 3b7fb2c2b11742331803198db783da4f92f7fd65 (1.0.10).
 Minecraft 1.19.2, Forge 43.5.0, Java 17.

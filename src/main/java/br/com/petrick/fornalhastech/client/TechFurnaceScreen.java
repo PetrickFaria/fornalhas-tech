@@ -19,7 +19,6 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     public TechFurnaceScreen(TechFurnaceMenu menu,Inventory inv,Component title){super(menu,inv,title);imageWidth=176;imageHeight=230;inventoryLabelY=999;}
     @Override protected void renderBg(PoseStack pose,float partial,int mx,int my){
         RenderSystem.setShaderTexture(0,TEX); blit(pose,leftPos,topPos,0,0,0,imageWidth,imageHeight,352,459);
-        int tier=menu.getCoreTier(); if(tier>0){int c=COLORS[tier]; frame(pose,79,19,18,18,c);frame(pose,47,52,18,18,c);frame(pose,47,102,18,18,c);frame(pose,123,69,26,26,c);}
         // Battery fill uses the image's existing horizontal FE bar without modifying its border.
         int filled=(int)(54L*menu.getEnergy()/menu.getMaxEnergy());
         if(filled>0)GuiComponent.fill(pose,leftPos+38,topPos+92,leftPos+38+filled,topPos+97,menu.getAccentColor());
@@ -41,6 +40,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     }
     @Override protected void renderLabels(PoseStack pose,int mx,int my) { }
     @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);super.render(pose,mx,my,delta);
+        int tier=menu.getCoreTier(); if(tier>0){int c=COLORS[tier]; frame(pose,79,19,18,18,c);frame(pose,47,52,18,18,c);frame(pose,47,102,18,18,c);frame(pose,123,69,26,26,c);}
         if(mx>=leftPos+37&&mx<leftPos+95&&my>=topPos+90&&my<topPos+99)renderTooltip(pose,Component.literal(menu.getEnergy()+" / "+menu.getMaxEnergy()+" FE"),mx,my);
         else renderTooltip(pose,mx,my);
     }
