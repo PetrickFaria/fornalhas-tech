@@ -26,3 +26,9 @@ As imagens conceituais estão no diretório `reference/` do pacote-fonte. Elas s
 ## Versionamento
 
 A versão única do mod fica em `mod_version` no `gradle.properties`. Em cada nova atualização entregue, incremente o último componente (por exemplo, `1.0.4` para `1.0.5`). O Gradle usa essa propriedade para o nome do JAR e para `mods.toml`; o GitHub Actions lê a mesma propriedade para nomear o artefato.
+
+
+### Update 1.0.11
+The main furnace interface and the color customization view now use the supplied pixel-art references. Core tiers progressively unlock black, red, white, yellow, green, cyan, and brown visual choices. Colors are server-validated. The new 64x64 face PNGs are retained under `assets/fornalhastech/textures/block/source/`; the red `(237,28,36)` pixels are the only pixels extracted as tinted emissive masks. The base model uses an inset of 0.125 model units, edge rails with `r=0.125`, and vertex caps with a `2r=0.25` outward relief.
+
+Fuel now generates stored Forge Energy (32,000 FE capacity, 10 FE per vanilla fuel burn tick). Smelting consumes 10 FE per progress tick, scaled by the existing core speed; stored energy is saved in block-entity NBT. Modules remain available through quick-move and sneaking interaction because the referenced main GUI has no module slot. See `RELATORIO_TESTES.txt` for verification limits.

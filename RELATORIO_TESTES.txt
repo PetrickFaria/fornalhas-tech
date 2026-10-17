@@ -1,32 +1,20 @@
-FORNALHAS TECH — RELATÓRIO DE CORREÇÃO DA GUI E RECURSOS
-Data: 15/10/2026
+Fornalhas Tech 1.0.11 — verificações desta entrega
 
-Correções nos commits e059a09 e eb502db
-- GUI redesenhada em 176×220 px, opaca, com slots de componente coloridos, slots do processamento, 27 slots de inventário e nove da hotbar.
-- Screen agora desenha a textura usando as dimensões reais (176×220), em vez do atlas padrão de 256×256.
-- Menu alinhado com a imagem. Indicadores de queima e progresso recebem valores via DataSlot.
-- `pack.mcmeta` adicionado com pack_format 9.
-- Nome do contêiner e nome do bloco pt-BR conferidos; os nomes dos seis núcleos e dois módulos permanecem no arquivo de idioma.
+Base: branch main, commit 3b7fb2c2b11742331803198db783da4f92f7fd65 (1.0.10).
+Minecraft 1.19.2, Forge 43.5.0, Java 17.
 
-Verificações executadas
-- Parse JSON das traduções, modelos e blockstates: aprovado.
-- Verificação de caminhos das texturas apontadas pelos modelos: nenhuma referência ausente.
-- `tech_furnace` contém 32 variantes de blockstate.
-- Workflow #5, commit e059a09, Ubuntu/Java 17: compilação e upload do artefato concluídos com sucesso.
-- Workflow #7, commit eb502db: compilação bem-sucedida após limitar a barra de progresso à área visível.
-- JAR extraído do artefato e verificado: arquivo ZIP íntegro; `pack.mcmeta`, GUI 176×220 RGBA, 11 modelos JSON, 32 variantes de blockstate e recursos de idioma/textura presentes.
-- O idioma no JAR contém `block.fornalhastech.tech_furnace` = `Fornalha Tech`.
+Implementação:
+- Interface principal usa a imagem fornecida como fundo (352x459, desenhada centralizada em 176x230), mantendo a grade e as proporções da referência.
+- Personalização usa a imagem fornecida (352x177); os sete botões desbloqueiam conforme a progressão dos seis núcleos, e a validação é repetida no servidor.
+- Texturas de face fornecidas são preservadas sem modificação em textures/block/source, RGBA 64x64. Pixels RGB (237,28,36) isolam somente os inlays emissivos; preto/cinza permanecem na camada de face e não são tintados.
+- Geometria base: cubo com camada interna 0,125 unidade atrás do plano externo; 12 perfis de aresta com avanço r=0,125 unidade; 8 tampas de vértice com avanço 2r=0,25 unidade. Alto-forno e defumador mantêm os modelos atuais.
+- Energia: capacidade 32.000 FE; combustão converte 10 FE por tick de queima vanilla; cada ponto de progresso usa 10 FE, multiplicado pela velocidade do núcleo. A queima pausa ao ficar sem espaço para um incremento completo, preservando o combustível iniciado. Energia, queima, progresso e seleção visual são persistidos.
+- Níveis de luz: sem núcleo 0/5; com núcleo 5/10 (inativo/ativo). Atividade significa geração ou processamento.
+- Módulos seguem utilizáveis sem slot novo na GUI: transferência rápida os instala, agachar + usar com mão vazia os remove; agachar + usar com o módulo o instala.
 
-Não testado dentro do Minecraft
-- Não executei uma instância do jogo para conferir a tela corrigida visualmente ou verificar a inicialização de todos os recursos.
-- Não foram feitos testes de modo, progressão, persistência, iluminação ou multiplayer nesta sessão.
-
-Pendências anteriores
-- Modelagem 3D detalhada e reprodução fiel das 15 imagens.
-- Brilho emissivo apenas nos detalhes coloridos e iluminação dinâmica baseada no núcleo.
-- Tela secundária para seleção/sincronização de cores.
-- Acúmulo e entrega da experiência das receitas.
-- Testes funcionais e visuais em jogo.
-
-Conclusão
-As falhas descritas de escala/organização da GUI e presença dos metadados de recursos foram corrigidas e o JAR novo compila. Não declarar o mod como finalizado: permanecem as pendências listadas e não houve teste dentro do Minecraft.
+Testes locais possíveis:
+- JSON de todos os modelos e blockstates parseados.
+- As seis texturas de origem verificadas como RGBA 64x64.
+- Máscaras geradas exclusivamente a partir de pixels vermelhos da nova planificação; não há máscara emissiva para pixels pretos/cinzas.
+- A compilação local não foi possível: wrapper não pôde baixar Gradle 7.5.1 porque a rede deste ambiente está indisponível. GitHub Actions deve ser a fonte de compilação.
+- Minecraft não foi iniciado neste ambiente; layout renderizado, modelo/orientação, emissão, luz, persistência em mundo real e fluxo de energia ainda precisam de validação in-game.

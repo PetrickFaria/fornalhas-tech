@@ -35,6 +35,7 @@ public final class SetVisualColorPacket {
             if (player.containerMenu instanceof TechFurnaceMenu menu
                     && menu.getBlockPos().equals(packet.pos)
                     && player.level.getBlockEntity(packet.pos) instanceof TechFurnaceEntity furnace
+                    && packet.color <= furnace.coreTier()
                     && player.distanceToSqr(packet.pos.getX() + .5D, packet.pos.getY() + .5D, packet.pos.getZ() + .5D) <= 64.0D) {
                 menu.setVisualColorIndex(packet.color);
             }
@@ -42,3 +43,4 @@ public final class SetVisualColorPacket {
         context.setPacketHandled(true);
     }
 }
+

@@ -8,5 +8,13 @@
   "item.fornalhastech.core_netherite": "Núcleo Tech (Netherita)",
   "item.fornalhastech.module_blast_furnace": "Módulo Alto-Forno",
   "item.fornalhastech.module_smoker": "Módulo Defumador",
-  "container.fornalhastech.tech_furnace": "Fornalha Tech"
+  "container.fornalhastech.tech_furnace": "Fornalha Tech",
+  "container.fornalhastech.tech_furnace_customization": "Fornalha Tech (Personalização)",
+  "gui.fornalhastech.color.black": "Preto",
+  "gui.fornalhastech.color.red": "Vermelho",
+  "gui.fornalhastech.color.white": "Branco",
+  "gui.fornalhastech.color.yellow": "Amarelo",
+  "gui.fornalhastech.color.green": "Verde",
+  "gui.fornalhastech.color.blue": "Azul",
+  "gui.fornalhastech.color.brown": "Marrom"
 }
