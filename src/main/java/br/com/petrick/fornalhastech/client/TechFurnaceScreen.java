@@ -56,15 +56,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     }
 
     @Override protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
-        Component title = switch (menu.getCoreTier()) {
-            case 1 -> Component.translatable("container.fornalhastech.tech_furnace.core_base");
-            case 2 -> Component.translatable("container.fornalhastech.tech_furnace.core_iron");
-            case 3 -> Component.translatable("container.fornalhastech.tech_furnace.core_gold");
-            case 4 -> Component.translatable("container.fornalhastech.tech_furnace.core_emerald");
-            case 5 -> Component.translatable("container.fornalhastech.tech_furnace.core_diamond");
-            case 6 -> Component.translatable("container.fornalhastech.tech_furnace.core_netherite");
-            default -> Component.translatable("container.fornalhastech.tech_furnace");
-        };
+        Component title = Component.translatable("container.fornalhastech.tech_furnace");
         font.draw(pose, title, (imageWidth - font.width(title)) / 2.0F, 6, 0xFF17191B);
         font.draw(pose, Component.translatable("container.inventory"), 8, 73, 0xFF33383B);
     }
