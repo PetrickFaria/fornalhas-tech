@@ -26,7 +26,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.common.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import javax.annotation.Nullable;
 
 public class TechFurnaceEntity extends BlockEntity implements Container, MenuProvider {
@@ -101,7 +101,7 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     private boolean isCore(ItemStack s){return s.is(ModItems.CORE_BASE.get())||s.is(ModItems.CORE_IRON.get())||s.is(ModItems.CORE_GOLD.get())||s.is(ModItems.CORE_EMERALD.get())||s.is(ModItems.CORE_DIAMOND.get())||s.is(ModItems.CORE_NETHERITE.get());}
     private boolean isModule(ItemStack s){return s.is(ModItems.MODULE_BLAST_FURNACE.get())||s.is(ModItems.MODULE_SMOKER.get());}
     public ItemStack removeModule(){ItemStack module=items.get(4);if(module.isEmpty())return ItemStack.EMPTY;items.set(4,ItemStack.EMPTY);setChanged();refreshVisualState();return module;}
-    public boolean installModule(ItemStack held){if(!items.get(4).isEmpty()||!isModule(held))return false;items.set(4,held.copyWithCount(1));held.shrink(1);setChanged();refreshVisualState();return true;}
+    public boolean installModule(ItemStack held){if(!items.get(4).isEmpty()||!isModule(held))return false;ItemStack installed=held.copy();installed.setCount(1);items.set(4,installed);held.shrink(1);setChanged();refreshVisualState();return true;}
     @Override public void clearContent(){items.clear();setChanged();refreshVisualState();} @Override public boolean stillValid(Player p){return worldPosition.distToCenterSqr(p.position())<=64.0D;}
     @Override public <T> LazyOptional<T> getCapability(Capability<T> cap,@Nullable Direction side){if(cap==ForgeCapabilities.ENERGY)return energyCap.cast();return super.getCapability(cap,side);}
     @Override public void invalidateCaps(){super.invalidateCaps();energyCap.invalidate();}

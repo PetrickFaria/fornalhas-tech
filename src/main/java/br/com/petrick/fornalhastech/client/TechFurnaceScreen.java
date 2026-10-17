@@ -40,14 +40,6 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         GuiComponent.fill(p,leftPos+x+w-1,topPos+y,leftPos+x+w,topPos+y+h,c);
     }
     @Override protected void renderLabels(PoseStack pose,int mx,int my) { }
-    @Override protected void renderSlot(PoseStack pose,Slot slot){
-        if(slot.index>=4 && slot.index<=5)return;
-        ItemStack stack=slot.getItem(); int x=slot.x,y=slot.y;
-        if(!stack.isEmpty()){
-            itemRenderer.renderAndDecorateItem(stack,x,y);
-            itemRenderer.renderGuiItemDecorations(font,stack,x,y);
-        }
-    }
     @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);super.render(pose,mx,my,delta);
         if(mx>=leftPos+37&&mx<leftPos+95&&my>=topPos+90&&my<topPos+99)renderTooltip(pose,Component.literal(menu.getEnergy()+" / "+menu.getMaxEnergy()+" FE"),mx,my);
         else renderTooltip(pose,mx,my);
