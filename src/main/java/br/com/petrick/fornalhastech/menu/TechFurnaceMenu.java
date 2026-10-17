@@ -50,15 +50,15 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
 
         // Furnace-style layout: ingredient, fuel and output; the core is kept
         // in a compact corner slot. Modules retain their existing hidden slot.
-        addSlot(new Slot(container, 0, 56, 17) {
+        addSlot(new Slot(container, 0, 56, 43) {
             @Override public boolean mayPlace(ItemStack stack) { return !isComponent(stack); }
         });
-        addSlot(new Slot(container, 1, 56, 53) {
+        addSlot(new Slot(container, 1, 56, 79) {
             @Override public boolean mayPlace(ItemStack stack) {
                 return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
             }
         });
-        addSlot(new Slot(container, 2, 116, 35) {
+        addSlot(new Slot(container, 2, 116, 61) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
             @Override public void onTake(Player player, ItemStack stack) {
                 if (container instanceof TechFurnaceEntity entity) entity.awardPendingExperience(player);
@@ -68,19 +68,19 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
         addSlot(new Slot(container, 3, 8, 17) {
             @Override public boolean mayPlace(ItemStack stack) { return isCore(stack); }
         });
-        addSlot(new Slot(container, 4, -1000, -1000) {
+        addSlot(new Slot(container, 4, 32, 17) {
             @Override public boolean mayPlace(ItemStack stack) { return isModule(stack); }
         });
-        addSlot(new Slot(container, 5, -1000, -1000) {
+        addSlot(new Slot(container, 5, 56, 17) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
         });
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(inventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                addSlot(new Slot(inventory, col + row * 9 + 9, 8 + col * 18, 104 + row * 18));
             }
         }
-        for (int col = 0; col < 9; col++) addSlot(new Slot(inventory, col, 8 + col * 18, 142));
+        for (int col = 0; col < 9; col++) addSlot(new Slot(inventory, col, 8 + col * 18, 162));
         for (int i = 0; i < 6; i++) addDataSlot(dataSlot(i));
     }
 

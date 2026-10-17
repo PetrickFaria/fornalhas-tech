@@ -18,7 +18,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     public TechFurnaceScreen(TechFurnaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         imageWidth = 176;
-        imageHeight = 166;
+        imageHeight = 186;
         inventoryLabelY = 999;
     }
 
@@ -26,13 +26,18 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         RenderSystem.setShaderTexture(0, TEX);
         blit(pose, leftPos, topPos, 0, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
+        // Fixed-color interiors and black frames for the three special slots.
+        specialSlot(pose, 7, 16, 0xFF43D878);  // core: green
+        specialSlot(pose, 31, 16, 0xFFFFC844); // module: yellow
+        specialSlot(pose, 55, 16, 0xFFE83E3E); // accelerator: red
+
         // Vanilla-style flame meter: the remaining burn time fills upward.
         int flameRows = menu.getBurnProgress();
         int[] widths = {2, 4, 4, 6, 8, 8, 10, 12, 12, 10, 8, 8, 6, 4};
         int[] offsets = {5, 4, 4, 3, 2, 2, 1, 0, 0, 1, 2, 2, 3, 4};
         for (int row = 14 - flameRows; row < 14; row++) {
             if (row < 0 || row >= widths.length) continue;
-            int y = topPos + 36 + row;
+            int y = topPos + 62 + row;
             int x = leftPos + 56 + offsets[row];
             int width = widths[row];
             GuiComponent.fill(pose, x, y, x + width, y + 1, row < 5 ? 0xFFFFD66A : 0xFFE7772D);
@@ -42,10 +47,15 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         int progress = menu.getCookProgress();
         if (progress > 0) {
             int fillWidth = Math.min(24, progress);
-            GuiComponent.fill(pose, leftPos + 80, topPos + 41, leftPos + 80 + fillWidth, topPos + 45, menu.getAccentColor());
-            GuiComponent.fill(pose, leftPos + 80, topPos + 41, leftPos + 80 + fillWidth, topPos + 42, 0xFFE7F2F4);
-            if (fillWidth >= 21) GuiComponent.fill(pose, leftPos + 100, topPos + 39, leftPos + 104, topPos + 47, menu.getAccentColor());
+            GuiComponent.fill(pose, leftPos + 80, topPos + 67, leftPos + 80 + fillWidth, topPos + 71, menu.getAccentColor());
+            GuiComponent.fill(pose, leftPos + 80, topPos + 67, leftPos + 80 + fillWidth, topPos + 68, 0xFFE7F2F4);
+            if (fillWidth >= 21) GuiComponent.fill(pose, leftPos + 100, topPos + 65, leftPos + 104, topPos + 73, menu.getAccentColor());
         }
+    }
+
+    private void specialSlot(PoseStack pose, int x, int y, int interiorColor) {
+        GuiComponent.fill(pose, leftPos + x + 1, topPos + y + 1, leftPos + x + 17, topPos + y + 17, interiorColor);
+        frame(pose, x, y, 18, 18, 0xFF000000);
     }
 
     private void frame(PoseStack pose, int x, int y, int width, int height, int color) {
@@ -58,7 +68,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     @Override protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
         Component title = Component.translatable("container.fornalhastech.tech_furnace");
         font.draw(pose, title, (imageWidth - font.width(title)) / 2.0F, 6, 0xFF17191B);
-        font.draw(pose, Component.translatable("container.inventory"), 8, 73, 0xFF33383B);
+        font.draw(pose, Component.translatable("container.inventory"), 8, 93, 0xFF33383B);
     }
 
     @Override public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
@@ -69,10 +79,9 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
             int selected = Math.max(0, Math.min(6, menu.getVisualColorIndex()));
             int color = COLORS[selected];
             // Frames coincide with vanilla's slot background origin (Slot.x/y minus one).
-            frame(pose, 7, 16, 18, 18, color);    // core
-            frame(pose, 55, 16, 18, 18, color);   // ingredient
-            frame(pose, 55, 52, 18, 18, color);   // fuel
-            frame(pose, 115, 34, 18, 18, color);  // result
+            frame(pose, 55, 42, 18, 18, color);   // ingredient
+            frame(pose, 55, 78, 18, 18, color);   // fuel
+            frame(pose, 115, 60, 18, 18, color);  // result
         }
         renderTooltip(pose, mouseX, mouseY);
     }
