@@ -38,9 +38,22 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         GuiComponent.fill(p,leftPos+x,topPos+y,leftPos+x+1,topPos+y+h,c);
         GuiComponent.fill(p,leftPos+x+w-1,topPos+y,leftPos+x+w,topPos+y+h,c);
     }
-    @Override protected void renderLabels(PoseStack pose,int mx,int my) { }
+    @Override protected void renderLabels(PoseStack pose,int mx,int my) {
+        Component title=switch(menu.getCoreTier()){
+            case 1->Component.translatable("container.fornalhastech.tech_furnace.core_base");
+            case 2->Component.translatable("container.fornalhastech.tech_furnace.core_iron");
+            case 3->Component.translatable("container.fornalhastech.tech_furnace.core_gold");
+            case 4->Component.translatable("container.fornalhastech.tech_furnace.core_emerald");
+            case 5->Component.translatable("container.fornalhastech.tech_furnace.core_diamond");
+            case 6->Component.translatable("container.fornalhastech.tech_furnace.core_netherite");
+            default->Component.translatable("container.fornalhastech.tech_furnace");
+        };
+        font.draw(pose,title,(imageWidth-font.width(title))/2.0F,8,0xFF111111);
+    }
     @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);super.render(pose,mx,my,delta);
-        int tier=menu.getCoreTier(); if(tier>0){int c=COLORS[tier]; frame(pose,79,19,18,18,c);frame(pose,47,52,18,18,c);frame(pose,47,102,18,18,c);frame(pose,123,69,26,26,c);}
+        int tier=menu.getCoreTier(); if(tier>0){int selected=Math.max(0,Math.min(6,menu.getVisualColorIndex()));int c=COLORS[selected];
+            // Vanilla slot backgrounds start one pixel above/left of Slot.x/Slot.y.
+            frame(pose,78,18,18,18,c);frame(pose,46,51,18,18,c);frame(pose,46,101,18,18,c);frame(pose,123,69,26,26,c);}
         if(mx>=leftPos+37&&mx<leftPos+95&&my>=topPos+90&&my<topPos+99)renderTooltip(pose,Component.literal(menu.getEnergy()+" / "+menu.getMaxEnergy()+" FE"),mx,my);
         else renderTooltip(pose,mx,my);
     }

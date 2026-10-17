@@ -36,11 +36,21 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     public static final int FE_PER_PROGRESS = 10;
     private final NonNullList<ItemStack> items = NonNullList.withSize(6, ItemStack.EMPTY);
     private int burn=0, burnTotal=0, cook=0, cookTotal=200, color=0;
+    private boolean colorCustomized=false;
     private boolean generating=false;
     private static final int[] SPEED={1,2,3,5,7,9,11};
     private static final class PersistentEnergyStorage extends EnergyStorage {
         PersistentEnergyStorage() { super(ENERGY_CAPACITY, 0, 0); }
         void loadEnergy(int amount) { this.energy = Math.max(0, Math.min(ENERGY_CAPACITY, amount)); }
+        boolean consumeInternal(int amount) {
+            if (amount <= 0 || energy < amount) return false;
+            energy -= amount;
+            return true;
+        }
+        boolean canGenerate(int amount) { return amount > 0 && energy <= capacity - amount; }
+        void generateInternal(int amount) {
+            if (amount > 0) energy = Math.min(capacity, energy + amount);
+        }
     }
     private final PersistentEnergyStorage energy = new PersistentEnergyStorage();
     private LazyOptional<IEnergyStorage> energyCap=LazyOptional.of(()->energy);
@@ -54,16 +64,15 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
         AbstractCookingRecipe recipe=be.findRecipe(type);
         boolean can=recipe!=null&&be.canOutput(recipe)&&!be.items.get(0).isEmpty();
         int speed=SPEED[be.coreTier()];
-        boolean processing=can && be.energy.getEnergyStored() >= FE_PER_PROGRESS*speed;
+        boolean processing=can && be.energy.consumeInternal(FE_PER_PROGRESS*speed);
         if(processing){
-            be.energy.extractEnergy(FE_PER_PROGRESS*speed,false);
             be.cook+=speed; be.cookTotal=Math.max(1,recipe.getCookingTime());
             if(be.cook>=be.cookTotal){be.cook-=be.cookTotal;be.smelt(recipe);}
         } else if(!can) be.cook=0;
         // Burn independently of a recipe. When storage is full, pause the active fuel timer without consuming energy.
-        if(be.energy.getEnergyStored()<=ENERGY_CAPACITY-FE_PER_FUEL_TICK){
+        if(be.energy.canGenerate(FE_PER_FUEL_TICK)){
             if(be.burn<=0){int fuel=ForgeHooks.getBurnTime(be.items.get(1),RecipeType.SMELTING);if(fuel>0){be.burn=be.burnTotal=fuel;ItemStack stack=be.items.get(1);if(stack.hasCraftingRemainingItem())be.items.set(1,stack.getCraftingRemainingItem());else stack.shrink(1);}}
-            if(be.burn>0){int accepted=be.energy.receiveEnergy(FE_PER_FUEL_TICK,false);if(accepted>0){be.burn--;be.generating=true;}}
+            if(be.burn>0){be.energy.generateInternal(FE_PER_FUEL_TICK);be.burn--;be.generating=true;}
         }
         boolean lit=processing||be.generating;
         boolean core=be.coreTier()>0;
@@ -81,28 +90,29 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     public int getVisualColorIndex(){return color;} public int getCoreVisualColorIndex(){return coreTier();}
     private int effectiveVisualColor(){return color;}
     private void refreshVisualState(){if(level==null||level.isClientSide)return;BlockState old=getBlockState();BlockState next=old.setValue(TechFurnaceBlock.MODE,mode()).setValue(TechFurnaceBlock.CORE,coreTier()>0).setValue(TechFurnaceBlock.VISUAL_COLOR,effectiveVisualColor());if(!next.equals(old))level.setBlock(worldPosition,next,3);}
-    public void setVisualColorIndex(int value){int allowed=coreTier();color=(value>=0&&value<=allowed)?value:0;setChanged();refreshVisualState();}
+    public void setVisualColorIndex(int value){int allowed=coreTier();if(value>=0&&value<=allowed){color=value;colorCustomized=allowed>0;}else{color=0;colorCustomized=false;}setChanged();refreshVisualState();}
     public int getCookTime(){return cook;} public int getCookTotal(){return cookTotal;} public int getBurnTime(){return burn;} public int getBurnTotal(){return burnTotal;}
     public int getEnergyStored(){return energy.getEnergyStored();} public int getMaxEnergyStored(){return ENERGY_CAPACITY;} public boolean isGenerating(){return generating;}
     public void dropContents(){if(level==null||level.isClientSide)return;for(ItemStack s:items)if(!s.isEmpty())net.minecraft.world.level.block.Block.popResource(level,worldPosition,s);}
-    @Override public void load(CompoundTag t){super.load(t);net.minecraft.world.ContainerHelper.loadAllItems(t,items);burn=t.getInt("Burn");burnTotal=t.getInt("BurnTotal");cook=t.getInt("Cook");cookTotal=Math.max(1,t.getInt("CookTotal"));color=t.getInt("Color");energy.loadEnergy(t.getInt("Energy"));}
-    @Override protected void saveAdditional(CompoundTag t){super.saveAdditional(t);net.minecraft.world.ContainerHelper.saveAllItems(t,items);t.putInt("Burn",burn);t.putInt("BurnTotal",burnTotal);t.putInt("Cook",cook);t.putInt("CookTotal",cookTotal);t.putInt("Color",color);t.putInt("Energy",energy.getEnergyStored());}
+    @Override public void load(CompoundTag t){super.load(t);net.minecraft.world.ContainerHelper.loadAllItems(t,items);burn=t.getInt("Burn");burnTotal=t.getInt("BurnTotal");cook=t.getInt("Cook");cookTotal=Math.max(1,t.getInt("CookTotal"));color=t.getInt("Color");colorCustomized=t.getBoolean("ColorCustomized");energy.loadEnergy(t.getInt("Energy"));if(color<0||color>coreTier()){color=0;colorCustomized=false;}else if(color==0&&coreTier()>0&&!colorCustomized){color=coreTier();}}
+    @Override protected void saveAdditional(CompoundTag t){super.saveAdditional(t);net.minecraft.world.ContainerHelper.saveAllItems(t,items);t.putInt("Burn",burn);t.putInt("BurnTotal",burnTotal);t.putInt("Cook",cook);t.putInt("CookTotal",cookTotal);t.putInt("Color",color);t.putBoolean("ColorCustomized",colorCustomized);t.putInt("Energy",energy.getEnergyStored());}
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket(){return ClientboundBlockEntityDataPacket.create(this);}
     @Override public CompoundTag getUpdateTag(){return saveWithoutMetadata();}
     @Override public Component getDisplayName(){return Component.translatable("block.fornalhastech.tech_furnace");}
     @Override public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int id,Inventory inv,Player player){return new TechFurnaceMenu(id,inv,this,worldPosition);}
     @Override public int getContainerSize(){return 6;} @Override public boolean isEmpty(){for(ItemStack s:items)if(!s.isEmpty())return false;return true;}
     @Override public ItemStack getItem(int i){return items.get(i);}
-    @Override public ItemStack removeItem(int i,int n){ItemStack s=net.minecraft.world.ContainerHelper.removeItem(items,i,n);if(!s.isEmpty()){setChanged();if(i==3||i==4){if(i==3&&color>coreTier())color=0;refreshVisualState();}}return s;}
-    @Override public ItemStack removeItemNoUpdate(int i){ItemStack s=net.minecraft.world.ContainerHelper.takeItem(items,i);if(i==3||i==4){if(i==3&&color>coreTier())color=0;refreshVisualState();}return s;}
-    @Override public void setItem(int i,ItemStack s){items.set(i,s);s.setCount(Math.min(s.getCount(),getMaxStackSize()));setChanged();if(i==3||i==4){if(i==3&&color>coreTier())color=0;refreshVisualState();}}
+    private void normalizeColorAfterCoreChange(int previousTier){int newTier=coreTier();if(newTier==0){color=0;colorCustomized=false;}else if(previousTier==0&&!colorCustomized){color=newTier;}else if(color>newTier){color=0;colorCustomized=false;}}
+    @Override public ItemStack removeItem(int i,int n){int oldTier=i==3?coreTier():-1;ItemStack s=net.minecraft.world.ContainerHelper.removeItem(items,i,n);if(!s.isEmpty()){setChanged();if(i==3||i==4){if(i==3)normalizeColorAfterCoreChange(oldTier);refreshVisualState();}}return s;}
+    @Override public ItemStack removeItemNoUpdate(int i){int oldTier=i==3?coreTier():-1;ItemStack s=net.minecraft.world.ContainerHelper.takeItem(items,i);if(i==3||i==4){if(i==3)normalizeColorAfterCoreChange(oldTier);refreshVisualState();}return s;}
+    @Override public void setItem(int i,ItemStack s){int oldTier=i==3?coreTier():-1;items.set(i,s);s.setCount(Math.min(s.getCount(),getMaxStackSize()));setChanged();if(i==3||i==4){if(i==3)normalizeColorAfterCoreChange(oldTier);refreshVisualState();}}
     @Override public boolean canPlaceItem(int i,ItemStack s){return switch(i){case 0->!isComponent(s);case 1->ForgeHooks.getBurnTime(s,RecipeType.SMELTING)>0;case 3->isCore(s);case 4->isModule(s);default->false;};}
     private boolean isComponent(ItemStack s){return isCore(s)||isModule(s);}
     private boolean isCore(ItemStack s){return s.is(ModItems.CORE_BASE.get())||s.is(ModItems.CORE_IRON.get())||s.is(ModItems.CORE_GOLD.get())||s.is(ModItems.CORE_EMERALD.get())||s.is(ModItems.CORE_DIAMOND.get())||s.is(ModItems.CORE_NETHERITE.get());}
     private boolean isModule(ItemStack s){return s.is(ModItems.MODULE_BLAST_FURNACE.get())||s.is(ModItems.MODULE_SMOKER.get());}
     public ItemStack removeModule(){ItemStack module=items.get(4);if(module.isEmpty())return ItemStack.EMPTY;items.set(4,ItemStack.EMPTY);setChanged();refreshVisualState();return module;}
     public boolean installModule(ItemStack held){if(!items.get(4).isEmpty()||!isModule(held))return false;ItemStack installed=held.copy();installed.setCount(1);items.set(4,installed);held.shrink(1);setChanged();refreshVisualState();return true;}
-    @Override public void clearContent(){items.clear();setChanged();refreshVisualState();} @Override public boolean stillValid(Player p){return worldPosition.distToCenterSqr(p.position())<=64.0D;}
+    @Override public void clearContent(){items.clear();color=0;colorCustomized=false;setChanged();refreshVisualState();} @Override public boolean stillValid(Player p){return worldPosition.distToCenterSqr(p.position())<=64.0D;}
     @Override public <T> LazyOptional<T> getCapability(Capability<T> cap,@Nullable Direction side){if(cap==ForgeCapabilities.ENERGY)return energyCap.cast();return super.getCapability(cap,side);}
     @Override public void invalidateCaps(){super.invalidateCaps();energyCap.invalidate();}
 }

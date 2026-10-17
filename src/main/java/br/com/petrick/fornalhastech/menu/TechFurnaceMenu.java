@@ -46,7 +46,7 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
  public int getBurnProgress(){return syncedBurnTotal<=0?0:Math.min(18,syncedBurn*18/syncedBurnTotal);}
  public int getEnergy(){return syncedEnergy;} public int getMaxEnergy(){return TechFurnaceEntity.ENERGY_CAPACITY;} public boolean isGenerating(){return syncedGenerating>0;}
  public BlockPos getBlockPos(){return pos;} public int getVisualColorIndex(){return syncedColor;} public int getCoreTier(){return syncedTier;}
- public int getAccentColor(){return switch(syncedTier){case 1->0xFFE83E3E;case 2->0xFFE8EFF1;case 3->0xFFFFC844;case 4->0xFF43D878;case 5->0xFF42D8ED;case 6->0xFFAD704A;default->0xFF9AA6AA;};}
+ public int getAccentColor(){return switch(syncedColor){case 1->0xFFE83E3E;case 2->0xFFE8EFF1;case 3->0xFFFFC844;case 4->0xFF43D878;case 5->0xFF42D8ED;case 6->0xFFAD704A;default->0xFF000000;};}
  public void setVisualColorIndex(int color){if(furnace instanceof TechFurnaceEntity be)be.setVisualColorIndex(color);}
  private static boolean isCore(ItemStack s){return s.is(ModItems.CORE_BASE.get())||s.is(ModItems.CORE_IRON.get())||s.is(ModItems.CORE_GOLD.get())||s.is(ModItems.CORE_EMERALD.get())||s.is(ModItems.CORE_DIAMOND.get())||s.is(ModItems.CORE_NETHERITE.get());}
  private static boolean isModule(ItemStack s){return s.is(ModItems.MODULE_BLAST_FURNACE.get())||s.is(ModItems.MODULE_SMOKER.get());}
@@ -75,8 +75,8 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
    int targetEnd;
    if(isCore(stack)){targetStart=3;targetEnd=4;}
    else if(isModule(stack)){targetStart=4;targetEnd=5;}
-   else if(isFuel(stack)){targetStart=1;targetEnd=2;}
    else if(isProcessable(stack)){targetStart=0;targetEnd=1;}
+   else if(isFuel(stack)){targetStart=1;targetEnd=2;}
    else return ItemStack.EMPTY;
    // Each recognized item has one destination. A full restricted slot never falls back to input.
    if(!moveItemStackTo(stack,targetStart,targetEnd,false))return ItemStack.EMPTY;

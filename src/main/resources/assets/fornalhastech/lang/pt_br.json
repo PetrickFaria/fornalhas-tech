@@ -9,12 +9,19 @@
   "item.fornalhastech.module_blast_furnace": "Módulo Alto-Forno",
   "item.fornalhastech.module_smoker": "Módulo Defumador",
   "container.fornalhastech.tech_furnace": "Fornalha Tech",
-  "container.fornalhastech.tech_furnace_customization": "Fornalha Tech (Personalização)",
+  "container.fornalhastech.tech_furnace_customization": "Personalização",
   "gui.fornalhastech.color.black": "Preto",
   "gui.fornalhastech.color.red": "Vermelho",
   "gui.fornalhastech.color.white": "Branco",
   "gui.fornalhastech.color.yellow": "Amarelo",
   "gui.fornalhastech.color.green": "Verde",
   "gui.fornalhastech.color.blue": "Azul",
-  "gui.fornalhastech.color.brown": "Marrom"
+  "gui.fornalhastech.color.brown": "Marrom",
+  "container.fornalhastech.tech_furnace.core_base": "Fornalha Tech (Base)",
+  "container.fornalhastech.tech_furnace.core_iron": "Fornalha Tech (Ferro)",
+  "container.fornalhastech.tech_furnace.core_gold": "Fornalha Tech (Ouro)",
+  "container.fornalhastech.tech_furnace.core_emerald": "Fornalha Tech (Esmeralda)",
+  "container.fornalhastech.tech_furnace.core_diamond": "Fornalha Tech (Diamante)",
+  "container.fornalhastech.tech_furnace.core_netherite": "Fornalha Tech (Netherita)",
+  "container.fornalhastech.customization": "Personalização"
 }
