@@ -10,58 +10,90 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 
 public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> {
-    static final ResourceLocation TEX = new ResourceLocation(FornalhasTech.MODID,"textures/gui/tech_furnace.png");
-    static final int[] COLORS={0xFF000000,0xFFE83E3E,0xFFE8EFF1,0xFFFFC844,0xFF43D878,0xFF42D8ED,0xFFAD704A};
-    public TechFurnaceScreen(TechFurnaceMenu menu,Inventory inv,Component title){super(menu,inv,title);imageWidth=176;imageHeight=230;inventoryLabelY=999;}
-    @Override protected void renderBg(PoseStack pose,float partial,int mx,int my){
-        RenderSystem.setShaderTexture(0,TEX); blit(pose,leftPos,topPos,0,0,0,imageWidth,imageHeight,imageWidth,imageHeight);
-        // Battery fill uses the image's existing horizontal FE bar without modifying its border.
-        int filled=(int)(54L*menu.getEnergy()/menu.getMaxEnergy());
-        if(filled>0)GuiComponent.fill(pose,leftPos+38,topPos+92,leftPos+38+filled,topPos+97,menu.getAccentColor());
-        if(menu.isGenerating()){
-            GuiComponent.fill(pose,leftPos+53,topPos+77,leftPos+57,topPos+87,0xFFFFA42A);
-            GuiComponent.fill(pose,leftPos+54,topPos+75,leftPos+56,topPos+79,0xFFFFE67A);
+    static final ResourceLocation TEX = new ResourceLocation(FornalhasTech.MODID, "textures/gui/tech_furnace.png");
+    static final int[] COLORS = {0xFF000000, 0xFFE83E3E, 0xFFE8EFF1, 0xFFFFC844, 0xFF43D878, 0xFF42D8ED, 0xFFAD704A};
+
+    public TechFurnaceScreen(TechFurnaceMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
+        imageWidth = 176;
+        imageHeight = 166;
+        inventoryLabelY = 999;
+    }
+
+    @Override protected void renderBg(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.setShaderTexture(0, TEX);
+        blit(pose, leftPos, topPos, 0, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+
+        // Vanilla-style flame meter: the remaining burn time fills upward.
+        int flameRows = menu.getBurnProgress();
+        int[] widths = {2, 4, 4, 6, 8, 8, 10, 12, 12, 10, 8, 8, 6, 4};
+        int[] offsets = {5, 4, 4, 3, 2, 2, 1, 0, 0, 1, 2, 2, 3, 4};
+        for (int row = 14 - flameRows; row < 14; row++) {
+            if (row < 0 || row >= widths.length) continue;
+            int y = topPos + 36 + row;
+            int x = leftPos + 56 + offsets[row];
+            int width = widths[row];
+            GuiComponent.fill(pose, x, y, x + width, y + 1, row < 5 ? 0xFFFFD66A : 0xFFE7772D);
         }
-        int p=menu.getCookProgress(); if(p>0){
-            int w=Math.min(20,p*20/48); GuiComponent.fill(pose,leftPos+92,topPos+78,leftPos+92+w,topPos+84,menu.getAccentColor());
-            if(w>0)GuiComponent.fill(pose,leftPos+92,topPos+78,leftPos+92+w,topPos+79,0xFFE7F2F4);
-            if(w>=18)GuiComponent.fill(pose,leftPos+108,topPos+76,leftPos+112,topPos+86,menu.getAccentColor());
+
+        // Progress arrow is filled from left to right, independently of fuel.
+        int progress = menu.getCookProgress();
+        if (progress > 0) {
+            int fillWidth = Math.min(24, progress);
+            GuiComponent.fill(pose, leftPos + 80, topPos + 41, leftPos + 80 + fillWidth, topPos + 45, menu.getAccentColor());
+            GuiComponent.fill(pose, leftPos + 80, topPos + 41, leftPos + 80 + fillWidth, topPos + 42, 0xFFE7F2F4);
+            if (fillWidth >= 21) GuiComponent.fill(pose, leftPos + 100, topPos + 39, leftPos + 104, topPos + 47, menu.getAccentColor());
         }
     }
-    private void frame(PoseStack p,int x,int y,int w,int h,int c){
-        GuiComponent.fill(p,leftPos+x,topPos+y,leftPos+x+w,topPos+y+1,c);
-        GuiComponent.fill(p,leftPos+x,topPos+y+h-1,leftPos+x+w,topPos+y+h,c);
-        GuiComponent.fill(p,leftPos+x,topPos+y,leftPos+x+1,topPos+y+h,c);
-        GuiComponent.fill(p,leftPos+x+w-1,topPos+y,leftPos+x+w,topPos+y+h,c);
+
+    private void frame(PoseStack pose, int x, int y, int width, int height, int color) {
+        GuiComponent.fill(pose, leftPos + x, topPos + y, leftPos + x + width, topPos + y + 1, color);
+        GuiComponent.fill(pose, leftPos + x, topPos + y + height - 1, leftPos + x + width, topPos + y + height, color);
+        GuiComponent.fill(pose, leftPos + x, topPos + y, leftPos + x + 1, topPos + y + height, color);
+        GuiComponent.fill(pose, leftPos + x + width - 1, topPos + y, leftPos + x + width, topPos + y + height, color);
     }
-    @Override protected void renderLabels(PoseStack pose,int mx,int my) {
-        Component title=switch(menu.getCoreTier()){
-            case 1->Component.translatable("container.fornalhastech.tech_furnace.core_base");
-            case 2->Component.translatable("container.fornalhastech.tech_furnace.core_iron");
-            case 3->Component.translatable("container.fornalhastech.tech_furnace.core_gold");
-            case 4->Component.translatable("container.fornalhastech.tech_furnace.core_emerald");
-            case 5->Component.translatable("container.fornalhastech.tech_furnace.core_diamond");
-            case 6->Component.translatable("container.fornalhastech.tech_furnace.core_netherite");
-            default->Component.translatable("container.fornalhastech.tech_furnace");
+
+    @Override protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+        Component title = switch (menu.getCoreTier()) {
+            case 1 -> Component.translatable("container.fornalhastech.tech_furnace.core_base");
+            case 2 -> Component.translatable("container.fornalhastech.tech_furnace.core_iron");
+            case 3 -> Component.translatable("container.fornalhastech.tech_furnace.core_gold");
+            case 4 -> Component.translatable("container.fornalhastech.tech_furnace.core_emerald");
+            case 5 -> Component.translatable("container.fornalhastech.tech_furnace.core_diamond");
+            case 6 -> Component.translatable("container.fornalhastech.tech_furnace.core_netherite");
+            default -> Component.translatable("container.fornalhastech.tech_furnace");
         };
-        font.draw(pose,title,(imageWidth-font.width(title))/2.0F,8,0xFF111111);
+        font.draw(pose, title, (imageWidth - font.width(title)) / 2.0F, 6, 0xFF17191B);
+        font.draw(pose, Component.translatable("container.inventory"), 8, 73, 0xFF33383B);
     }
-    @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);super.render(pose,mx,my,delta);
-        int tier=menu.getCoreTier(); if(tier>0){int selected=Math.max(0,Math.min(6,menu.getVisualColorIndex()));int c=COLORS[selected];
-            // Vanilla slot backgrounds start one pixel above/left of Slot.x/Slot.y.
-            frame(pose,78,18,18,18,c);frame(pose,46,51,18,18,c);frame(pose,46,101,18,18,c);frame(pose,123,69,26,26,c);}
-        if(mx>=leftPos+37&&mx<leftPos+95&&my>=topPos+90&&my<topPos+99)renderTooltip(pose,Component.literal(menu.getEnergy()+" / "+menu.getMaxEnergy()+" FE"),mx,my);
-        else renderTooltip(pose,mx,my);
-    }
-    @Override public boolean mouseClicked(double x,double y,int button){
-        if(button==0&&inside(x,y,leftPos+155,topPos+6,14,14)){
-            Minecraft.getInstance().setScreen(new TechFurnaceCustomizationScreen(menu));return true;
+
+    @Override public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
+        renderBackground(pose);
+        super.render(pose, mouseX, mouseY, partialTick);
+        int tier = menu.getCoreTier();
+        if (tier > 0) {
+            int selected = Math.max(0, Math.min(6, menu.getVisualColorIndex()));
+            int color = COLORS[selected];
+            // Frames coincide with vanilla's slot background origin (Slot.x/y minus one).
+            frame(pose, 7, 16, 18, 18, color);    // core
+            frame(pose, 55, 16, 18, 18, color);   // ingredient
+            frame(pose, 55, 52, 18, 18, color);   // fuel
+            frame(pose, 115, 34, 18, 18, color);  // result
         }
-        return super.mouseClicked(x,y,button);
+        renderTooltip(pose, mouseX, mouseY);
     }
-    private static boolean inside(double x,double y,int l,int t,int w,int h){return x>=l&&x<l+w&&y>=t&&y<t+h;}
+
+    @Override public boolean mouseClicked(double x, double y, int button) {
+        if (button == 0 && inside(x, y, leftPos + 155, topPos + 5, 14, 14)) {
+            Minecraft.getInstance().setScreen(new TechFurnaceCustomizationScreen(menu));
+            return true;
+        }
+        return super.mouseClicked(x, y, button);
+    }
+
+    private static boolean inside(double x, double y, int left, int top, int width, int height) {
+        return x >= left && x < left + width && y >= top && y < top + height;
+    }
 }
