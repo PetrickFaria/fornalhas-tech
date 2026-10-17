@@ -59,8 +59,8 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
         boolean cooking = lit && canCook;
         if (cooking) {
             int speed = SPEED[furnace.coreTier()];
-            furnace.cookTotal = Math.max(1, recipe.getCookingTime() / speed);
-            furnace.cook++;
+            furnace.cookTotal = Math.max(1, recipe.getCookingTime());
+            furnace.cook += speed;
             if (furnace.cook >= furnace.cookTotal) {
                 furnace.smelt(recipe);
                 furnace.cook = 0;
