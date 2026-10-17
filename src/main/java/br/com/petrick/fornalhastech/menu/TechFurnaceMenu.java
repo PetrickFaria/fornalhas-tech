@@ -60,9 +60,9 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
         });
         addSlot(new Slot(container, 2, 116, 35) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
-            @Override public ItemStack onTake(Player player, ItemStack stack) {
+            @Override public void onTake(Player player, ItemStack stack) {
                 if (container instanceof TechFurnaceEntity entity) entity.awardPendingExperience(player);
-                return super.onTake(player, stack);
+                super.onTake(player, stack);
             }
         });
         addSlot(new Slot(container, 3, 8, 17) {
