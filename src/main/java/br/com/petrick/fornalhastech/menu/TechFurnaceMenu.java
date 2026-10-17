@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.ForgeHooks;
@@ -51,5 +52,37 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
  private static boolean isModule(ItemStack s){return s.is(ModItems.MODULE_BLAST_FURNACE.get())||s.is(ModItems.MODULE_SMOKER.get());}
  private static boolean isComponent(ItemStack s){return isCore(s)||isModule(s);}
  @Override public boolean stillValid(Player p){return furnace.stillValid(p);}
- @Override public ItemStack quickMoveStack(Player p,int idx){ItemStack original=ItemStack.EMPTY;Slot slot=slots.get(idx);if(slot!=null&&slot.hasItem()){ItemStack stack=slot.getItem();original=stack.copy();if(idx<6){if(!moveItemStackTo(stack,6,slots.size(),true))return ItemStack.EMPTY;}else{int dest=isCore(stack)?3:isModule(stack)?4:1;if((!isCore(stack)&&!isModule(stack)||!moveItemStackTo(stack,dest,dest+1,false))&&!moveItemStackTo(stack,0,1,false))return ItemStack.EMPTY;}if(stack.isEmpty())slot.set(ItemStack.EMPTY);else slot.setChanged();}return original;}
+ private boolean isFuel(ItemStack stack){return ForgeHooks.getBurnTime(stack,RecipeType.SMELTING)>0;}
+ @SuppressWarnings({"rawtypes","unchecked"})
+ private boolean isProcessable(ItemStack stack){
+  if(stack.isEmpty()||isComponent(stack))return false;
+  RecipeType type=furnace.getItem(4).is(ModItems.MODULE_BLAST_FURNACE.get())?RecipeType.BLASTING:
+      furnace.getItem(4).is(ModItems.MODULE_SMOKER.get())?RecipeType.SMOKING:RecipeType.SMELTING;
+  SimpleContainer candidate=new SimpleContainer(6);
+  candidate.setItem(0,stack);
+  return level.getRecipeManager().getRecipeFor(type,candidate,level).isPresent();
+ }
+ @Override public ItemStack quickMoveStack(Player player,int index){
+  if(index<0||index>=slots.size())return ItemStack.EMPTY;
+  Slot source=slots.get(index);
+  if(source==null||!source.hasItem())return ItemStack.EMPTY;
+  ItemStack stack=source.getItem();
+  ItemStack original=stack.copy();
+  if(index<6){
+   if(!moveItemStackTo(stack,6,slots.size(),true))return ItemStack.EMPTY;
+  }else{
+   int targetStart;
+   int targetEnd;
+   if(isCore(stack)){targetStart=3;targetEnd=4;}
+   else if(isModule(stack)){targetStart=4;targetEnd=5;}
+   else if(isFuel(stack)){targetStart=1;targetEnd=2;}
+   else if(isProcessable(stack)){targetStart=0;targetEnd=1;}
+   else return ItemStack.EMPTY;
+   // Each recognized item has one destination. A full restricted slot never falls back to input.
+   if(!moveItemStackTo(stack,targetStart,targetEnd,false))return ItemStack.EMPTY;
+  }
+  if(stack.isEmpty())source.set(ItemStack.EMPTY);
+  else source.setChanged();
+  return original;
+ }
 }

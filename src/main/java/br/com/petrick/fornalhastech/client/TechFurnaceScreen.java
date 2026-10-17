@@ -18,7 +18,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
     static final int[] COLORS={0xFF000000,0xFFE83E3E,0xFFE8EFF1,0xFFFFC844,0xFF43D878,0xFF42D8ED,0xFFAD704A};
     public TechFurnaceScreen(TechFurnaceMenu menu,Inventory inv,Component title){super(menu,inv,title);imageWidth=176;imageHeight=230;inventoryLabelY=999;}
     @Override protected void renderBg(PoseStack pose,float partial,int mx,int my){
-        RenderSystem.setShaderTexture(0,TEX); blit(pose,leftPos,topPos,0,0,0,imageWidth,imageHeight,352,459);
+        RenderSystem.setShaderTexture(0,TEX); blit(pose,leftPos,topPos,0,0,0,imageWidth,imageHeight,imageWidth,imageHeight);
         // Battery fill uses the image's existing horizontal FE bar without modifying its border.
         int filled=(int)(54L*menu.getEnergy()/menu.getMaxEnergy());
         if(filled>0)GuiComponent.fill(pose,leftPos+38,topPos+92,leftPos+38+filled,topPos+97,menu.getAccentColor());

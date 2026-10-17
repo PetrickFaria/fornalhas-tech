@@ -17,7 +17,7 @@ public class TechFurnaceCustomizationScreen extends Screen {
     private final TechFurnaceMenu menu;
     private final int left,top;
     public TechFurnaceCustomizationScreen(TechFurnaceMenu menu){super(Component.translatable("container.fornalhastech.tech_furnace_customization"));this.menu=menu;this.left=(Minecraft.getInstance().getWindow().getGuiScaledWidth()-176)/2;this.top=(Minecraft.getInstance().getWindow().getGuiScaledHeight()-89)/2;}
-    @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);RenderSystem.setShaderTexture(0,TEX);GuiComponent.blit(pose,left,top,0,0,0,176,89,352,177);
+    @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);RenderSystem.setShaderTexture(0,TEX);GuiComponent.blit(pose,left,top,0,0,0,176,89,176,89);
         int tier=menu.getCoreTier();
         for(int i=0;i<7;i++)if(i>tier)GuiComponent.fill(pose,left+12+i*23,top+41,left+30+i*23,top+59,0xFF393939);
         if(mx>=left+155&&mx<left+169&&my>=top+6&&my<top+20)renderTooltip(pose,Component.literal("Voltar"),mx,my);
