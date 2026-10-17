@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkHooks;
 
 import java.util.function.Supplier;
 
@@ -31,13 +32,17 @@ public final class SetVisualColorPacket {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player == null || packet.color < 0 || packet.color > 6) return;
+            if (player == null || packet.color < -1 || packet.color > 6) return;
             if (player.containerMenu instanceof TechFurnaceMenu menu
                     && menu.getBlockPos().equals(packet.pos)
                     && player.level.getBlockEntity(packet.pos) instanceof TechFurnaceEntity furnace
+                    && menu.stillValid(player)
                     && packet.color <= furnace.coreTier()
                     && player.distanceToSqr(packet.pos.getX() + .5D, packet.pos.getY() + .5D, packet.pos.getZ() + .5D) <= 64.0D) {
-                menu.setVisualColorIndex(packet.color);
+                if (packet.color >= 0) menu.setVisualColorIndex(packet.color);
+                // Reopen on the server: a fresh container id and synchronized slots/data
+                // replace the customization screen only after validation and persistence.
+                NetworkHooks.openScreen(player, furnace, packet.pos);
             }
         });
         context.setPacketHandled(true);

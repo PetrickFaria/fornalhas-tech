@@ -16,6 +16,8 @@ public class TechFurnaceCustomizationScreen extends Screen {
     private static final ResourceLocation TEX=new ResourceLocation(FornalhasTech.MODID,"textures/gui/tech_furnace_customization.png");
     private final TechFurnaceMenu menu;
     private int left,top;
+    private boolean returning;
+    private int returnTicks;
     public TechFurnaceCustomizationScreen(TechFurnaceMenu menu){super(Component.translatable("container.fornalhastech.customization"));this.menu=menu;}
     @Override protected void init(){left=(width-176)/2;top=(height-89)/2;}
     @Override public void render(PoseStack pose,int mx,int my,float delta){renderBackground(pose);RenderSystem.setShaderTexture(0,TEX);GuiComponent.blit(pose,left,top,0,0,0,176,89,176,89);
@@ -37,9 +39,23 @@ public class TechFurnaceCustomizationScreen extends Screen {
     }
     @Override public boolean mouseClicked(double x,double y,int button){if(button!=0)return super.mouseClicked(x,y,button);
         if(x>=left+155&&x<left+169&&y>=top+6&&y<top+20){returnToMain();return true;}
-        int tier=menu.getCoreTier();for(int i=0;i<7;i++)if(x>=left+12+i*23&&x<left+30+i*23&&y>=top+41&&y<top+59){if(i<=tier){ModNetwork.CHANNEL.sendToServer(new SetVisualColorPacket(menu.getBlockPos(),i));}return true;}
+        int tier=menu.getCoreTier();for(int i=0;i<7;i++)if(x>=left+12+i*23&&x<left+30+i*23&&y>=top+41&&y<top+59){if(i<=tier && !returning){returning=true;ModNetwork.CHANNEL.sendToServer(new SetVisualColorPacket(menu.getBlockPos(),i));}return true;}
         return super.mouseClicked(x,y,button);
     }
-    private void returnToMain(){Minecraft mc=Minecraft.getInstance();if(mc.player!=null)mc.setScreen(new TechFurnaceScreen(menu,mc.player.getInventory(),Component.translatable("block.fornalhastech.tech_furnace")));else onClose();}
+    private void returnToMain(){
+        Minecraft mc=Minecraft.getInstance();
+        if(mc.player==null || mc.player.containerMenu!=menu){mc.setScreen(null);return;}
+        if(!returning){returning=true;ModNetwork.CHANNEL.sendToServer(new SetVisualColorPacket(menu.getBlockPos(),-1));}
+    }
+    @Override public boolean keyPressed(int key,int scan,int modifiers){
+        if(Minecraft.getInstance().options.keyInventory.matches(key,scan)){returnToMain();return true;}
+        return super.keyPressed(key,scan,modifiers);
+    }
+    @Override public boolean isPauseScreen(){return false;}
+    @Override public void tick(){
+        Minecraft mc=Minecraft.getInstance();
+        if(mc.player==null || mc.player.containerMenu!=menu)mc.setScreen(null);
+        if(returning && ++returnTicks>=40){returning=false;returnTicks=0;}
+    }
     @Override public void onClose(){returnToMain();}
 }
