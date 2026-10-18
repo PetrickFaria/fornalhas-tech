@@ -37,6 +37,12 @@ public class FuelWorkTest {
         }
         check(FuelWork.step(Integer.MAX_VALUE,Integer.MAX_VALUE-1,Integer.MAX_VALUE)==1,"Overflow");
         check(FuelWork.step(11,200,200)==0,"Completed recipe charged twice");
-        System.out.println("PASS: 7 speeds; original cadence; exact fuel/yield; partial ticks; core changes; integer persistence; overflow bounds.");
+        check(FuelWork.shouldPrimeNextTick(0,true),"Next fuel must be primed at an active-work boundary");
+        check(!FuelWork.shouldPrimeNextTick(1,true),"Do not replace fuel while burn remains");
+        check(!FuelWork.shouldPrimeNextTick(0,false),"Do not consume fuel without a valid next recipe");
+        int firstBurn=1; firstBurn-=1;
+        int nextBurn=FuelWork.shouldPrimeNextTick(firstBurn,true)?1600:0;
+        check(firstBurn==0 && nextBurn>0,"Consecutive fuels must keep the final LIT state active");
+        System.out.println("PASS: 7 speeds; original cadence; exact fuel/yield; partial ticks; core changes; integer persistence; boundary fuel handoff; overflow bounds.");
     }
 }

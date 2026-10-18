@@ -88,6 +88,13 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
             furnace.burn = Math.max(0, furnace.burn - speed);
             furnace.cook = 0;
         }
+        // Decide LIT only after recipe completion and fuel transitions. If work can
+        // continue and the prior unit ended exactly on this tick boundary, begin the
+        // next unit now; its burn clock is first charged on the next server tick.
+        if (furnace.burn <= 0
+                && FuelWork.shouldPrimeNextTick(furnace.burn, furnace.hasRecipeWork(recipeType))) {
+            furnace.startBurning();
+        }
         boolean lit = furnace.burn > 0;
 
         boolean core = furnace.coreTier() > 0;
@@ -98,6 +105,12 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
                 .setValue(TechFurnaceBlock.VISUAL_COLOR, furnace.effectiveVisualColor());
         if (!visual.equals(state)) level.setBlock(pos, visual, 3);
         if (oldLit != lit || oldCore != core || oldBurn != furnace.burn || oldCook != furnace.cook || level.getGameTime() % 20 == 0) furnace.setChanged();
+    }
+
+    private boolean hasRecipeWork(RecipeType<?> type) {
+        if (items.get(0).isEmpty()) return false;
+        AbstractCookingRecipe nextRecipe = findRecipe(type);
+        return nextRecipe != null && canOutput(nextRecipe);
     }
 
     private void startBurning() {

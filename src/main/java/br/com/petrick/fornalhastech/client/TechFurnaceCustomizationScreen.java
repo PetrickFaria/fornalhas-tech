@@ -16,6 +16,7 @@ public class TechFurnaceCustomizationScreen extends Screen {
     private static final ResourceLocation TEX=new ResourceLocation(FornalhasTech.MODID,"textures/gui/tech_furnace_customization.png");
     private final TechFurnaceMenu menu;
     private int left,top;
+    private static final int RETURN_X=154, RETURN_Y=6, RETURN_WIDTH=16, RETURN_HEIGHT=14;
     private boolean returning;
     private int returnTicks;
     public TechFurnaceCustomizationScreen(TechFurnaceMenu menu){super(Component.translatable("container.fornalhastech.customization"));this.menu=menu;}
@@ -28,7 +29,7 @@ public class TechFurnaceCustomizationScreen extends Screen {
         frame(pose,left+12+selected*23,top+41,18,18,TechFurnaceScreen.COLORS[selected]);
         Component title=Component.translatable("container.fornalhastech.customization");
         font.draw(pose,title,left+(176-font.width(title))/2.0F,top+8,0xFF111111);
-        if(mx>=left+155&&mx<left+169&&my>=top+6&&my<top+20)renderTooltip(pose,Component.literal("Voltar"),mx,my);
+        if(mx>=left+RETURN_X&&mx<left+RETURN_X+RETURN_WIDTH&&my>=top+RETURN_Y&&my<top+RETURN_Y+RETURN_HEIGHT)renderTooltip(pose,Component.literal("Voltar"),mx,my);
         else for(int i=0;i<7;i++)if(mx>=left+12+i*23&&mx<left+30+i*23&&my>=top+41&&my<top+59){renderTooltip(pose,Component.literal(i>tier?"Bloqueada":"Selecionar cor"),mx,my);break;}
     }
     private void frame(PoseStack pose,int x,int y,int w,int h,int color){
@@ -38,7 +39,7 @@ public class TechFurnaceCustomizationScreen extends Screen {
         GuiComponent.fill(pose,x+w-1,y,x+w,y+h,color);
     }
     @Override public boolean mouseClicked(double x,double y,int button){if(button!=0)return super.mouseClicked(x,y,button);
-        if(x>=left+155&&x<left+169&&y>=top+6&&y<top+20){returnToMain();return true;}
+        if(x>=left+RETURN_X&&x<left+RETURN_X+RETURN_WIDTH&&y>=top+RETURN_Y&&y<top+RETURN_Y+RETURN_HEIGHT){returnToMain();return true;}
         int tier=menu.getCoreTier();for(int i=0;i<7;i++)if(x>=left+12+i*23&&x<left+30+i*23&&y>=top+41&&y<top+59){if(i<=tier && !returning){returning=true;ModNetwork.CHANNEL.sendToServer(new SetVisualColorPacket(menu.getBlockPos(),i));}return true;}
         return super.mouseClicked(x,y,button);
     }

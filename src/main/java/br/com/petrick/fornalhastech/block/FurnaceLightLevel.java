@@ -4,6 +4,6 @@ package br.com.petrick.fornalhastech.block;
 public final class FurnaceLightLevel {
     private FurnaceLightLevel() {}
     public static int get(boolean hasCore, boolean burning) {
-        return hasCore ? (burning ? 15 : 10) : (burning ? 5 : 0);
+        return hasCore ? (burning ? 15 : 10) : (burning ? 10 : 0);
     }
 }
