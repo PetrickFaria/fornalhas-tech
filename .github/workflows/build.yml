@@ -64,7 +64,7 @@ jobs:
           java -cp build/light-tests FurnaceLightLevelTest
 
       - name: Validate 1.0.31 visual and state invariants
-        run: python3 tools/validate_visual_refinements_1_0_30.py
+        run: python3 tools/validate_visual_refinements_1_0_31.py
 
       - name: Upload compiled JAR
         uses: actions/upload-artifact@v4
