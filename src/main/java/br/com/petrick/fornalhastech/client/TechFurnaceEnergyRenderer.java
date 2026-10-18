@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -64,13 +65,32 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
     private static final float CORNER_V = 0.023437500000F;
     private static final RenderType[] PASSES = new RenderType[EnergyFlowPhase.FRAMES];
     private static final RenderType[] FIRE_PASSES = new RenderType[5];
-    private static final float[][] FIRE_VERTICES = {
-        {4.75F/16F, 5.75F/16F, 0.371F/16F},
-        {4.75F/16F, 2.50F/16F, 0.371F/16F},
-        {11.25F/16F, 2.50F/16F, 0.371F/16F},
-        {11.25F/16F, 5.75F/16F, 0.371F/16F}
+    private static final float FIRE_LEFT = 4.75F / 16F;
+    private static final float FIRE_RIGHT = 11.25F / 16F;
+    private static final float FIRE_BOTTOM = 2.50F / 16F;
+    private static final float FIRE_TOP = 5.75F / 16F;
+    private static final float FIRE_NEAR = 0.371F / 16F;
+    private static final float FIRE_FAR = 1F - FIRE_NEAR;
+    // One face is selected directly from FACING. This mirrors the blockstate's
+    // north/east/south/west model rotation without a second, sign-sensitive yaw.
+    private static final float[][] FIRE_NORTH = {
+        {FIRE_LEFT,FIRE_TOP,FIRE_NEAR},{FIRE_RIGHT,FIRE_TOP,FIRE_NEAR},
+        {FIRE_RIGHT,FIRE_BOTTOM,FIRE_NEAR},{FIRE_LEFT,FIRE_BOTTOM,FIRE_NEAR}
     };
-    private static final float[][] FIRE_UV = {{0,0},{0,1},{1,1},{1,0}};
+    private static final float[][] FIRE_EAST = {
+        {FIRE_FAR,FIRE_TOP,FIRE_LEFT},{FIRE_FAR,FIRE_TOP,FIRE_RIGHT},
+        {FIRE_FAR,FIRE_BOTTOM,FIRE_RIGHT},{FIRE_FAR,FIRE_BOTTOM,FIRE_LEFT}
+    };
+    private static final float[][] FIRE_SOUTH = {
+        {FIRE_RIGHT,FIRE_TOP,FIRE_FAR},{FIRE_LEFT,FIRE_TOP,FIRE_FAR},
+        {FIRE_LEFT,FIRE_BOTTOM,FIRE_FAR},{FIRE_RIGHT,FIRE_BOTTOM,FIRE_FAR}
+    };
+    private static final float[][] FIRE_WEST = {
+        {FIRE_NEAR,FIRE_TOP,FIRE_RIGHT},{FIRE_NEAR,FIRE_TOP,FIRE_LEFT},
+        {FIRE_NEAR,FIRE_BOTTOM,FIRE_LEFT},{FIRE_NEAR,FIRE_BOTTOM,FIRE_RIGHT}
+    };
+    private static final float[][] FIRE_UV = {{0,0},{1,0},{1,1},{0,1}};
+    private static final float[][] FIRE_NORMALS = {{0,0,-1},{1,0,0},{0,0,1},{-1,0,0}};
     static {
         for (int i = 0; i < PASSES.length; i++) {
             PASSES[i] = RenderType.entityTranslucentEmissive(new ResourceLocation(
@@ -93,18 +113,8 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         BlockState state = entity.getBlockState();
         if (state.getValue(TechFurnaceBlock.MODE) == 0 && state.getValue(TechFurnaceBlock.LIT)) {
             int fireFrame = (int) (((entity.getLevel().getGameTime() + (double) partialTick) / 3.0) % 5.0);
-            float rotation = switch (state.getValue(TechFurnaceBlock.FACING)) {
-                case EAST -> -90F;
-                case SOUTH -> -180F;
-                case WEST -> -270F;
-                default -> 0F;
-            };
-            poses.pushPose();
-            poses.translate(.5, .5, .5);
-            poses.mulPose(Vector3f.YP.rotationDegrees(rotation));
-            poses.translate(-.5, -.5, -.5);
-            drawFire(poses.last(), buffers.getBuffer(FIRE_PASSES[fireFrame]));
-            poses.popPose();
+            drawFire(poses.last(), buffers.getBuffer(FIRE_PASSES[fireFrame]),
+                    state.getValue(TechFurnaceBlock.FACING));
         }
         if (state.getValue(TechFurnaceBlock.MODE) != 0
                 || state.getValue(TechFurnaceBlock.VISUAL_COLOR) == 0) return;
@@ -135,14 +145,26 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         poses.popPose();
     }
 
-    private static void drawFire(PoseStack.Pose pose, VertexConsumer out) {
-        float[][] normal = {{0F, 0F, -1F}};
-        for (int i = 0; i < FIRE_VERTICES.length; i++) {
-            float[] p = FIRE_VERTICES[i];
+    private static void drawFire(PoseStack.Pose pose, VertexConsumer out, Direction facing) {
+        float[][] vertices = switch (facing) {
+            case EAST -> FIRE_EAST;
+            case SOUTH -> FIRE_SOUTH;
+            case WEST -> FIRE_WEST;
+            default -> FIRE_NORTH;
+        };
+        float[] normal = FIRE_NORMALS[switch (facing) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        }];
+        for (int i = 0; i < vertices.length; i++) {
+            float[] p = vertices[i];
             out.vertex(pose.pose(), p[0], p[1], p[2]).color(1F, 1F, 1F, 1F)
                 .uv(FIRE_UV[i][0], FIRE_UV[i][1])
                 .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), normal[0][0], normal[0][1], normal[0][2]).endVertex();
+                .normal(pose.normal(), normal[0], normal[1], normal[2]).endVertex();
         }
     }
 

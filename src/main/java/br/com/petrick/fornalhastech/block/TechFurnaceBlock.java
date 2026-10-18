@@ -52,7 +52,7 @@ public class TechFurnaceBlock extends BaseEntityBlock {
   };
  }
  @Override public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-  if (!state.getValue(COOKING) || random.nextFloat() >= 0.35F) return;
+  if (!state.getValue(COOKING) || random.nextFloat() >= 0.525F) return;
   int color = getTechnologyColor(state.getValue(VISUAL_COLOR));
   float red = ((color >> 16) & 255) / 255F;
   float green = ((color >> 8) & 255) / 255F;
