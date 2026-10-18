@@ -45,6 +45,12 @@ jobs:
       - name: Compile mod and print diagnostics
         run: ./gradlew --no-daemon --stacktrace clean build
 
+      - name: Check independent energy animation clocks
+        run: |
+          mkdir -p build/flow-tests
+          javac -d build/flow-tests src/main/java/br/com/petrick/fornalhastech/client/EnergyFlowPhase.java tools/EnergyFlowPhaseTest.java
+          java -cp build/flow-tests EnergyFlowPhaseTest
+
       - name: Upload compiled JAR
         uses: actions/upload-artifact@v4
         with:

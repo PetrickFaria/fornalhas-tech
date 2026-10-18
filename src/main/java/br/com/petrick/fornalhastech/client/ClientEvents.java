@@ -14,6 +14,12 @@ import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 @Mod.EventBusSubscriber(modid = FornalhasTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
+    public static void registerRenderers(net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(br.com.petrick.fornalhastech.registry.ModBlockEntities.TECH_FURNACE.get(),
+                TechFurnaceEnergyRenderer::new);
+    }
+
+    @SubscribeEvent
     public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
         event.register((state, level, pos, tintIndex) -> {
             if (tintIndex != 0) return 0xFFFFFFFF;
