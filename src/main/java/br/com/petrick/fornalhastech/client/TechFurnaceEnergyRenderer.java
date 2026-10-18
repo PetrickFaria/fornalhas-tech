@@ -70,12 +70,6 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
     private static final float FIRE_BOTTOM = 2.50F / 16F;
     private static final float FIRE_TOP = 6.10F / 16F;
     private static final float FIRE_NEAR = 0.371F / 16F;
-    // Build the fire once on the north-facing plane, then rotate the whole quad
-    // about the block center using the same facing transform as the baked model.
-    private static final float[][] FIRE_QUAD = {
-        {FIRE_LEFT,FIRE_TOP,FIRE_NEAR},{FIRE_RIGHT,FIRE_TOP,FIRE_NEAR},
-        {FIRE_RIGHT,FIRE_BOTTOM,FIRE_NEAR},{FIRE_LEFT,FIRE_BOTTOM,FIRE_NEAR}
-    };
     private static final float[][] FIRE_UV = {{0,0},{1,0},{1,1},{0,1}};
     static {
         for (int i = 0; i < PASSES.length; i++) {
@@ -99,18 +93,8 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         BlockState state = entity.getBlockState();
         if (state.getValue(TechFurnaceBlock.MODE) == 0 && state.getValue(TechFurnaceBlock.LIT)) {
             int fireFrame = (int) (((entity.getLevel().getGameTime() + (double) partialTick) / 3.0) % 5.0);
-            float facingRotation = switch (state.getValue(TechFurnaceBlock.FACING)) {
-                case EAST -> -90F;
-                case SOUTH -> -180F;
-                case WEST -> -270F;
-                default -> 0F;
-            };
-            poses.pushPose();
-            poses.translate(.5, .5, .5);
-            poses.mulPose(Vector3f.YP.rotationDegrees(facingRotation));
-            poses.translate(-.5, -.5, -.5);
-            drawFire(poses.last(), buffers.getBuffer(FIRE_PASSES[fireFrame]));
-            poses.popPose();
+            drawFire(poses.last(), buffers.getBuffer(FIRE_PASSES[fireFrame]),
+                    state.getValue(TechFurnaceBlock.FACING));
         }
         if (state.getValue(TechFurnaceBlock.MODE) != 0
                 || state.getValue(TechFurnaceBlock.VISUAL_COLOR) == 0) return;
@@ -141,13 +125,40 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         poses.popPose();
     }
 
-    private static void drawFire(PoseStack.Pose pose, VertexConsumer out) {
-        for (int i = 0; i < FIRE_QUAD.length; i++) {
-            float[] p = FIRE_QUAD[i];
+    private static void drawFire(PoseStack.Pose pose, VertexConsumer out, Direction facing) {
+        // Build the quad directly on the physical front face. This avoids relying on
+        // a second rotation convention that could invert the baked model's facing.
+        float left = FIRE_LEFT, right = FIRE_RIGHT, top = FIRE_TOP, bottom = FIRE_BOTTOM;
+        float[][] quad;
+        float nx = 0F, ny = 0F, nz = 0F;
+        switch (facing) {
+            case SOUTH -> {
+                quad = new float[][]{{right,top,1F-FIRE_NEAR},{left,top,1F-FIRE_NEAR},
+                    {left,bottom,1F-FIRE_NEAR},{right,bottom,1F-FIRE_NEAR}};
+                nz = 1F;
+            }
+            case EAST -> {
+                quad = new float[][]{{1F-FIRE_NEAR,top,left},{1F-FIRE_NEAR,top,right},
+                    {1F-FIRE_NEAR,bottom,right},{1F-FIRE_NEAR,bottom,left}};
+                nx = 1F;
+            }
+            case WEST -> {
+                quad = new float[][]{{FIRE_NEAR,top,right},{FIRE_NEAR,top,left},
+                    {FIRE_NEAR,bottom,left},{FIRE_NEAR,bottom,right}};
+                nx = -1F;
+            }
+            default -> {
+                quad = new float[][]{{left,top,FIRE_NEAR},{right,top,FIRE_NEAR},
+                    {right,bottom,FIRE_NEAR},{left,bottom,FIRE_NEAR}};
+                nz = -1F;
+            }
+        }
+        for (int i = 0; i < quad.length; i++) {
+            float[] p = quad[i];
             out.vertex(pose.pose(), p[0], p[1], p[2]).color(1F, 1F, 1F, 1F)
                 .uv(FIRE_UV[i][0], FIRE_UV[i][1])
                 .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0F, 0F, -1F).endVertex();
+                .normal(pose.normal(), nx, ny, nz).endVertex();
         }
     }
 
