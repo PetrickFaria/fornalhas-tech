@@ -83,6 +83,20 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
             FIRE_PASSES[i] = RenderType.entityTranslucentEmissive(new ResourceLocation(
                 "fornalhastech", "textures/block/fire_panel_" + i + ".png"));
         }
+        // The 24 recessed corner detail quads travel rigidly with their eight 3D cubes.
+        // Model-space shift is 1/64 per axis; renderer coordinates are block-normalized.
+        final float step = 1F / 1024F;
+        for (int face = 0; face < CORNER_VERTICES.length; face++) {
+            int corner = face / 3;
+            float dx = corner < 4 ? step : -step;
+            float dy = corner % 4 < 2 ? step : -step;
+            float dz = corner % 2 == 0 ? step : -step;
+            for (float[] point : CORNER_VERTICES[face]) {
+                point[0] += dx;
+                point[1] += dy;
+                point[2] += dz;
+            }
+        }
     }
     // Weak keys release clocks when the client unloads/replaces a block entity.
     private final Map<TechFurnaceEntity, EnergyFlowPhase> clocks = new WeakHashMap<>();
@@ -104,8 +118,10 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         double time = entity.getLevel().getGameTime() + (double) partialTick;
         double phase = clocks.computeIfAbsent(entity, ignored -> new EnergyFlowPhase())
                 .sample(time, state.getValue(TechFurnaceBlock.LIT));
-        int frame = (int) phase;
-        float blend = (float) (phase - frame);
+        int phaseFrame = (int) phase;
+        int frame = EnergyFlowPhase.FRAME_ORDER[phaseFrame];
+        int nextFrame = EnergyFlowPhase.FRAME_ORDER[(phaseFrame + 1) % EnergyFlowPhase.FRAMES];
+        float blend = (float) (phase - phaseFrame);
         int color = Minecraft.getInstance().getBlockColors().getColor(state,
                 entity.getLevel(), entity.getBlockPos(), 0);
         float r = ((color >> 16) & 255) / 255F;
@@ -124,7 +140,7 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
         // Opaque current frame, then next-frame alpha: linear interpolation without
         // extra model surfaces. Identical vertices/depth and LEQUAL avoid depth flicker.
         draw(poses.last(), buffers.getBuffer(PASSES[frame]), r, g, b, 1F);
-        if (blend > 0F) draw(poses.last(), buffers.getBuffer(PASSES[(frame + 1) % 5]), r, g, b, blend);
+        if (blend > 0F) draw(poses.last(), buffers.getBuffer(PASSES[nextFrame]), r, g, b, blend);
         poses.popPose();
     }
 
