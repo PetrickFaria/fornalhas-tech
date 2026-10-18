@@ -63,8 +63,8 @@ jobs:
           javac -d build/light-tests src/main/java/br/com/petrick/fornalhastech/block/FurnaceLightLevel.java tools/FurnaceLightLevelTest.java
           java -cp build/light-tests FurnaceLightLevelTest
 
-      - name: Validate corner geometry and fuel handoff invariants
-        run: python3 tools/validate_visual_refinements_1_0_27.py
+      - name: Validate 1.0.29 visual and state invariants
+        run: python3 tools/validate_visual_refinements_1_0_29.py
 
       - name: Upload compiled JAR
         uses: actions/upload-artifact@v4

@@ -23,15 +23,7 @@ public class ClientEvents {
     public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
         event.register((state, level, pos, tintIndex) -> {
             if (tintIndex != 0) return 0xFFFFFFFF;
-            return switch (state.getValue(TechFurnaceBlock.VISUAL_COLOR)) {
-                case 1 -> 0xFFE83E3E;
-                case 2 -> 0xFFE8EFF1;
-                case 3 -> 0xFFFFC844;
-                case 4 -> 0xFF43D878;
-                case 5 -> 0xFF42D8ED;
-                case 6 -> 0xFFAD704A;
-                default -> 0xFF9AA6AA;
-            };
+            return TechFurnaceBlock.getTechnologyColor(state.getValue(TechFurnaceBlock.VISUAL_COLOR));
         }, ModBlocks.TECH_FURNACE.get());
     }
 
@@ -40,3 +32,4 @@ public class ClientEvents {
         event.enqueueWork(() -> MenuScreens.register(ModMenus.TECH_FURNACE.get(), TechFurnaceScreen::new));
     }
 }
+

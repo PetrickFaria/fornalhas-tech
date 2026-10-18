@@ -9,6 +9,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import br.com.petrick.fornalhastech.registry.ModBlockEntities;
@@ -36,6 +40,44 @@ public class TechFurnaceBlock extends BaseEntityBlock {
  @Override protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block,BlockState> b){b.add(FACING,LIT,CORE,COOKING,MODE,VISUAL_COLOR);}
  @Nullable @Override public BlockState getStateForPlacement(BlockPlaceContext c){return defaultBlockState().setValue(FACING,c.getHorizontalDirection().getOpposite());}
  @Override public RenderShape getRenderShape(BlockState s){return RenderShape.MODEL;}
+ public static int getTechnologyColor(int color) {
+  return switch (color) {
+   case 1 -> 0xFFE83E3E;
+   case 2 -> 0xFFE8EFF1;
+   case 3 -> 0xFFFFC844;
+   case 4 -> 0xFF43D878;
+   case 5 -> 0xFF42D8ED;
+   case 6 -> 0xFFAD704A;
+   default -> 0xFF9AA6AA;
+  };
+ }
+ @Override public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+  if (!state.getValue(COOKING) || random.nextFloat() >= 0.35F) return;
+  int color = getTechnologyColor(state.getValue(VISUAL_COLOR));
+  float red = ((color >> 16) & 255) / 255F;
+  float green = ((color >> 8) & 255) / 255F;
+  float blue = (color & 255) / 255F;
+  DustParticleOptions particle = new DustParticleOptions(new com.mojang.math.Vector3f(red, green, blue), 0.55F);
+  double x = pos.getX() + 0.28 + random.nextDouble() * 0.44;
+  double y = pos.getY() + 0.96 + random.nextDouble() * 0.12;
+  double z = pos.getZ() + 0.28 + random.nextDouble() * 0.44;
+  level.addParticle(particle, x, y, z,
+      (random.nextDouble() - 0.5) * 0.008, 0.012 + random.nextDouble() * 0.015,
+      (random.nextDouble() - 0.5) * 0.008);
+ }
+ @Override public boolean isSignalSource(BlockState state) { return true; }
+ @Override public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+  return state.getValue(COOKING) ? 15 : 0;
+ }
+ @Override public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+  return state.getValue(COOKING) ? 15 : 0;
+ }
+ @Override public boolean hasAnalogOutputSignal(BlockState state) { return true; }
+ @Override public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+  BlockEntity blockEntity = level.getBlockEntity(pos);
+  return blockEntity instanceof Container container
+      ? AbstractContainerMenu.getRedstoneSignalFromContainer(container) : 0;
+ }
  @Nullable @Override public BlockEntity newBlockEntity(BlockPos p,BlockState s){return new TechFurnaceEntity(p,s);}
  @Nullable @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level,BlockState state,BlockEntityType<T> type){return level.isClientSide?null:createTickerHelper(type,ModBlockEntities.TECH_FURNACE.get(),TechFurnaceEntity::tick);}
  @Override public InteractionResult use(BlockState s,Level l,BlockPos p,Player player,InteractionHand h,BlockHitResult hit){
@@ -48,4 +90,5 @@ public class TechFurnaceBlock extends BaseEntityBlock {
  }
  @Override public void onRemove(BlockState s,Level l,BlockPos p,BlockState ns,boolean moving){if(!s.is(ns.getBlock())){BlockEntity be=l.getBlockEntity(p);if(be instanceof TechFurnaceEntity te)te.dropContents();super.onRemove(s,l,p,ns,moving);}else super.onRemove(s,l,p,ns,moving);}
 }
+
 
