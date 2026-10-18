@@ -31,6 +31,10 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     private int color;
     private boolean colorCustomized;
     private float pendingExperience;
+    // Legacy stacks are retained in NBT until safely returned to the world on a server tick.
+    private final java.util.List<ItemStack> overflow = new java.util.ArrayList<>();
+    private net.minecraftforge.common.util.LazyOptional<net.minecraftforge.items.IItemHandler> itemCapability =
+            net.minecraftforge.common.util.LazyOptional.of(this::createItemHandler);
 
     // Existing core progression values are retained as cooking-speed multipliers.
     private static final int[] SPEED = {1, 2, 3, 5, 7, 9, 11};
@@ -42,6 +46,10 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     public static void tick(Level level, BlockPos pos, BlockState state, TechFurnaceEntity furnace) {
         if (level.isClientSide) return;
 
+        furnace.normalizeSpecialStacks();
+        furnace.returnOverflow();
+        int oldBurn = furnace.burn;
+        int oldCook = furnace.cook;
         boolean oldLit = state.getValue(TechFurnaceBlock.LIT);
         boolean oldCore = state.getValue(TechFurnaceBlock.CORE);
         int mode = furnace.mode();
@@ -50,28 +58,37 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
         AbstractCookingRecipe recipe = furnace.findRecipe(recipeType);
         boolean canCook = recipe != null && !furnace.items.get(0).isEmpty() && furnace.canOutput(recipe);
 
-        // Match vanilla furnace timing: an active burn loses one tick, and a new
-        // fuel item is consumed only when a valid recipe can currently fit in output.
-        if (furnace.burn > 0) furnace.burn--;
-        if (furnace.burn <= 0 && canCook) furnace.startBurning();
-
-        boolean lit = furnace.burn > 0;
-        boolean cooking = lit && canCook;
-        if (cooking) {
-            int speed = SPEED[furnace.coreTier()];
+        int speed = SPEED[furnace.coreTier()];
+        boolean cooking = false;
+        if (canCook) {
             furnace.cookTotal = Math.max(1, recipe.getCookingTime());
-            furnace.cook += speed;
+            // Use the same native recipe-work units for fuel and cooking. The last
+            // step is capped to remaining recipe work, avoiding integer-rounding loss.
+            int budget = FuelWork.step(speed, furnace.cook, furnace.cookTotal);
+            int progressed = 0;
+            while (budget > 0) {
+                if (furnace.burn <= 0) furnace.startBurning();
+                if (furnace.burn <= 0) break;
+                int used = Math.min(budget, furnace.burn);
+                furnace.burn -= used;
+                furnace.cook += used;
+                progressed += used;
+                budget -= used;
+            }
+            cooking = progressed > 0;
             if (furnace.cook >= furnace.cookTotal) {
                 furnace.smelt(recipe);
                 furnace.cook = 0;
                 furnace.pendingExperience += recipe.getExperience();
+            } else if (!cooking && furnace.cook > 0) {
+                furnace.cook = Math.max(0, furnace.cook - 2);
             }
-        } else if (!canCook) {
+        } else {
+            // Like vanilla, already burning fuel also expires while output/input is blocked.
+            furnace.burn = Math.max(0, furnace.burn - speed);
             furnace.cook = 0;
-        } else if (furnace.cook > 0) {
-            // Vanilla progress cools down gradually when fuel runs out.
-            furnace.cook = Math.max(0, furnace.cook - 2);
         }
+        boolean lit = furnace.burn > 0;
 
         boolean core = furnace.coreTier() > 0;
         BlockState visual = state.setValue(TechFurnaceBlock.LIT, lit)
@@ -80,7 +97,7 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
                 .setValue(TechFurnaceBlock.MODE, mode)
                 .setValue(TechFurnaceBlock.VISUAL_COLOR, furnace.effectiveVisualColor());
         if (!visual.equals(state)) level.setBlock(pos, visual, 3);
-        if (oldLit != lit || oldCore != core || level.getGameTime() % 20 == 0) furnace.setChanged();
+        if (oldLit != lit || oldCore != core || oldBurn != furnace.burn || oldCook != furnace.cook || level.getGameTime() % 20 == 0) furnace.setChanged();
     }
 
     private void startBurning() {
@@ -182,14 +199,22 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     public void dropContents() {
         if (level == null || level.isClientSide) return;
         for (ItemStack stack : items) if (!stack.isEmpty()) net.minecraft.world.level.block.Block.popResource(level, worldPosition, stack);
+        returnOverflow();
     }
 
     @Override public void load(CompoundTag tag) {
         super.load(tag);
         net.minecraft.world.ContainerHelper.loadAllItems(tag, items);
-        burn = tag.getInt("Burn");
-        burnTotal = tag.getInt("BurnTotal");
-        cook = tag.getInt("Cook");
+        overflow.clear();
+        net.minecraft.nbt.ListTag savedOverflow = tag.getList("SpecialOverflow", 10);
+        for (int i = 0; i < savedOverflow.size(); i++) {
+            ItemStack stack = ItemStack.of(savedOverflow.getCompound(i));
+            if (!stack.isEmpty()) overflow.add(stack);
+        }
+        normalizeSpecialStacks();
+        burn = Math.max(0, tag.getInt("Burn"));
+        burnTotal = Math.max(0, tag.getInt("BurnTotal"));
+        cook = Math.max(0, tag.getInt("Cook"));
         cookTotal = Math.max(1, tag.getInt("CookTotal"));
         color = tag.getInt("Color");
         colorCustomized = tag.getBoolean("ColorCustomized");
@@ -205,6 +230,9 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     @Override protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         net.minecraft.world.ContainerHelper.saveAllItems(tag, items);
+        net.minecraft.nbt.ListTag savedOverflow = new net.minecraft.nbt.ListTag();
+        for (ItemStack stack : overflow) savedOverflow.add(stack.save(new CompoundTag()));
+        tag.put("SpecialOverflow", savedOverflow);
         tag.putInt("Burn", burn);
         tag.putInt("BurnTotal", burnTotal);
         tag.putInt("Cook", cook);
@@ -257,7 +285,8 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     @Override public void setItem(int index, ItemStack stack) {
         int oldTier = index == 3 ? coreTier() : -1;
         items.set(index, stack);
-        stack.setCount(Math.min(stack.getCount(), getMaxStackSize()));
+        if (index >= 3) normalizeSpecialStacks();
+        else stack.setCount(Math.min(stack.getCount(), getMaxStackSize()));
         setChanged();
         if (index == 3 || index == 4) {
             if (index == 3) normalizeColorAfterCoreChange(oldTier);
@@ -265,12 +294,59 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
         }
     }
 
+    public int getSlotLimit(int slot) { return slot >= 3 && slot < 6 ? 1 : getMaxStackSize(); }
+
+    private void normalizeSpecialStacks() {
+        for (int slot = 3; slot < 6; slot++) {
+            ItemStack stack = items.get(slot);
+            if (stack.getCount() > 1) {
+                ItemStack excess = stack.copy();
+                excess.setCount(stack.getCount() - 1);
+                overflow.add(excess);
+                stack.setCount(1);
+                setChanged();
+            }
+        }
+    }
+
+    private void returnOverflow() {
+        if (level == null || level.isClientSide || overflow.isEmpty()) return;
+        java.util.Iterator<ItemStack> pending = overflow.iterator();
+        while (pending.hasNext()) {
+            ItemStack stack = pending.next();
+            net.minecraft.world.entity.item.ItemEntity dropped = new net.minecraft.world.entity.item.ItemEntity(
+                    level, worldPosition.getX() + 0.5, worldPosition.getY() + 1.0,
+                    worldPosition.getZ() + 0.5, stack.copy());
+            dropped.setDefaultPickUpDelay();
+            // Remove from the saved recovery queue only after the world accepts the item.
+            if (level.addFreshEntity(dropped)) { pending.remove(); setChanged(); }
+        }
+    }
+
+    private net.minecraftforge.items.IItemHandler createItemHandler() {
+        return new net.minecraftforge.items.wrapper.InvWrapper(this) {
+            @Override public int getSlotLimit(int slot) { return TechFurnaceEntity.this.getSlotLimit(slot); }
+        };
+    }
+
+    @Override public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+            net.minecraftforge.common.capabilities.Capability<T> capability, net.minecraft.core.Direction side) {
+        if (capability == net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER)
+            return itemCapability.cast();
+        return super.getCapability(capability, side);
+    }
+    @Override public void invalidateCaps() { super.invalidateCaps(); itemCapability.invalidate(); }
+    @Override public void reviveCaps() {
+        super.reviveCaps();
+        itemCapability = net.minecraftforge.common.util.LazyOptional.of(this::createItemHandler);
+    }
+
     @Override public boolean canPlaceItem(int index, ItemStack stack) {
         return switch (index) {
             case 0 -> !isComponent(stack);
             case 1 -> ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
-            case 3 -> isCore(stack);
-            case 4 -> isModule(stack);
+            case 3 -> items.get(3).isEmpty() && isCore(stack);
+            case 4 -> items.get(4).isEmpty() && isModule(stack);
             default -> false;
         };
     }

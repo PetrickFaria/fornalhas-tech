@@ -66,12 +66,15 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
             }
         });
         addSlot(new Slot(container, 3, SPECIAL_X, SPECIAL_Y) {
+            @Override public int getMaxStackSize() { return 1; }
             @Override public boolean mayPlace(ItemStack stack) { return isCore(stack); }
         });
         addSlot(new Slot(container, 4, SPECIAL_X + SPECIAL_STEP, SPECIAL_Y) {
+            @Override public int getMaxStackSize() { return 1; }
             @Override public boolean mayPlace(ItemStack stack) { return isModule(stack); }
         });
         addSlot(new Slot(container, 5, SPECIAL_X + 2 * SPECIAL_STEP, SPECIAL_Y) {
+            @Override public int getMaxStackSize() { return 1; }
             @Override public boolean mayPlace(ItemStack stack) { return false; }
         });
 
