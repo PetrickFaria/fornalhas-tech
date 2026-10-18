@@ -16,7 +16,8 @@ public class TechFurnaceCustomizationScreen extends Screen {
     private static final ResourceLocation TEX=new ResourceLocation(FornalhasTech.MODID,"textures/gui/tech_furnace_customization.png");
     private final TechFurnaceMenu menu;
     private int left,top;
-    private static final int RETURN_X=154, RETURN_Y=6, RETURN_WIDTH=16, RETURN_HEIGHT=14;
+    // 75% of the main screen's 14x14 button, rounded to an integer pixel size.
+    private static final int RETURN_X=157, RETURN_Y=7, RETURN_WIDTH=11, RETURN_HEIGHT=11;
     private boolean returning;
     private int returnTicks;
     public TechFurnaceCustomizationScreen(TechFurnaceMenu menu){super(Component.translatable("container.fornalhastech.customization"));this.menu=menu;}
@@ -25,6 +26,14 @@ public class TechFurnaceCustomizationScreen extends Screen {
         int tier=menu.getCoreTier();
         for(int i=0;i<7;i++)if(i>tier)GuiComponent.fill(pose,left+12+i*23,top+41,left+30+i*23,top+59,0xFF393939);
         super.render(pose,mx,my,delta);
+        // Cover the old bitmap arrow and draw the same P control as the main GUI.
+        GuiComponent.fill(pose,left+154,top+6,left+170,top+20,0xFFC6C6C6);
+        frame(pose,left+RETURN_X,top+RETURN_Y,RETURN_WIDTH,RETURN_HEIGHT,menu.getAccentColor());
+        pose.pushPose();
+        pose.translate(left+RETURN_X+RETURN_WIDTH/2.0F,top+RETURN_Y+RETURN_HEIGHT/2.0F,0);
+        pose.scale(0.75F,0.75F,1.0F);
+        font.draw(pose,"P",-font.width("P")/2.0F,-font.lineHeight/2.0F,0xFF17191B);
+        pose.popPose();
         int selected=Math.max(0,Math.min(6,menu.getVisualColorIndex()));
         frame(pose,left+12+selected*23,top+41,18,18,TechFurnaceScreen.COLORS[selected]);
         Component title=Component.translatable("container.fornalhastech.customization");
@@ -60,3 +69,4 @@ public class TechFurnaceCustomizationScreen extends Screen {
     }
     @Override public void onClose(){returnToMain();}
 }
+

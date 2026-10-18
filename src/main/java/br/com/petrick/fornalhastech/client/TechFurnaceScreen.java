@@ -36,7 +36,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         frame(pose, BUTTON_X, BUTTON_Y, 14, 14, menu.getAccentColor());
         String pGlyph = "P";
         float pX = leftPos + BUTTON_X + Math.round((14 - font.width(pGlyph)) / 2.0F) + 1;
-        float pY = topPos + BUTTON_Y + Math.round((14 - font.lineHeight) / 2.0F) + 1;
+        float pY = topPos + BUTTON_Y + Math.round((14 - font.lineHeight) / 2.0F);
         font.draw(pose, pGlyph, pX, pY, 0xFF17191B);
 
         // Draw each frame from its actual Slot position. AbstractContainerScreen
@@ -123,3 +123,4 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         return x >= left && x < left + width && y >= top && y < top + height;
     }
 }
+

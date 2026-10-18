@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -52,6 +53,7 @@ public class TechFurnaceBlock extends BaseEntityBlock {
   };
  }
  @Override public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+  if (state.getValue(LIT) && random.nextFloat() < 0.14F) spawnFireParticle(state, level, pos, random);
   if (!state.getValue(COOKING) || random.nextFloat() >= 0.525F) return;
   int color = getTechnologyColor(state.getValue(VISUAL_COLOR));
   float red = ((color >> 16) & 255) / 255F;
@@ -64,6 +66,20 @@ public class TechFurnaceBlock extends BaseEntityBlock {
   level.addParticle(particle, x, y, z,
       (random.nextDouble() - 0.5) * 0.008, 0.012 + random.nextDouble() * 0.015,
       (random.nextDouble() - 0.5) * 0.008);
+ }
+ private static void spawnFireParticle(BlockState state, Level level, BlockPos pos, RandomSource random) {
+  Direction facing = state.getValue(FACING);
+  double across = 0.30 + random.nextDouble() * 0.40;
+  double y = pos.getY() + 0.14 + random.nextDouble() * 0.20;
+  double x, z, vx, vz;
+  double drift = (random.nextDouble() - 0.5) * 0.012;
+  switch (facing) {
+   case SOUTH -> { x = pos.getX() + 1.0 - across; z = pos.getZ() + 1.015; vx = drift; vz = 0.006; }
+   case EAST -> { x = pos.getX() + 1.015; z = pos.getZ() + across; vx = 0.006; vz = drift; }
+   case WEST -> { x = pos.getX() - 0.015; z = pos.getZ() + 1.0 - across; vx = -0.006; vz = drift; }
+   default -> { x = pos.getX() + across; z = pos.getZ() - 0.015; vx = drift; vz = -0.006; }
+  }
+  level.addParticle(ParticleTypes.FLAME, x, y, z, vx, 0.018 + random.nextDouble() * 0.018, vz);
  }
  @Override public boolean isSignalSource(BlockState state) { return true; }
  @Override public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
@@ -90,5 +106,6 @@ public class TechFurnaceBlock extends BaseEntityBlock {
  }
  @Override public void onRemove(BlockState s,Level l,BlockPos p,BlockState ns,boolean moving){if(!s.is(ns.getBlock())){BlockEntity be=l.getBlockEntity(p);if(be instanceof TechFurnaceEntity te)te.dropContents();super.onRemove(s,l,p,ns,moving);}else super.onRemove(s,l,p,ns,moving);}
 }
+
 
 
