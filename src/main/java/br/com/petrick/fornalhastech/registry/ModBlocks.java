@@ -1,6 +1,7 @@
 package br.com.petrick.fornalhastech.registry;
 import br.com.petrick.fornalhastech.FornalhasTech;
 import br.com.petrick.fornalhastech.block.TechFurnaceBlock;
+import br.com.petrick.fornalhastech.block.FurnaceLightLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
