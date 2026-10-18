@@ -51,11 +51,11 @@ jobs:
           javac -d build/flow-tests src/main/java/br/com/petrick/fornalhastech/client/EnergyFlowPhase.java tools/EnergyFlowPhaseTest.java
           java -cp build/flow-tests EnergyFlowPhaseTest
 
-      - name: Check proportional fuel consumption
+      - name: Check fuel-based block light levels
         run: |
-          mkdir -p build/fuel-tests
-          javac -d build/fuel-tests src/main/java/br/com/petrick/fornalhastech/blockentity/FuelWork.java tools/FuelWorkTest.java
-          java -cp build/fuel-tests FuelWorkTest
+          mkdir -p build/light-tests
+          javac -d build/light-tests src/main/java/br/com/petrick/fornalhastech/block/FurnaceLightLevel.java tools/FurnaceLightLevelTest.java
+          java -cp build/light-tests FurnaceLightLevelTest
 
       - name: Upload compiled JAR
         uses: actions/upload-artifact@v4

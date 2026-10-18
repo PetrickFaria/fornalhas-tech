@@ -53,7 +53,7 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
                 || state.getValue(TechFurnaceBlock.VISUAL_COLOR) == 0) return;
         double time = entity.getLevel().getGameTime() + (double) partialTick;
         double phase = clocks.computeIfAbsent(entity, ignored -> new EnergyFlowPhase())
-                .sample(time, state.getValue(TechFurnaceBlock.COOKING));
+                .sample(time, state.getValue(TechFurnaceBlock.LIT));
         int frame = (int) phase;
         float blend = (float) (phase - frame);
         int color = Minecraft.getInstance().getBlockColors().getColor(state,

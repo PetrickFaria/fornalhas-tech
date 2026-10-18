@@ -34,7 +34,10 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         GuiComponent.fill(pose, leftPos + 5, topPos + 57, leftPos + imageWidth - 5, topPos + 58, 0xFF575F65);
         GuiComponent.fill(pose, leftPos + 5, topPos + 123, leftPos + imageWidth - 5, topPos + 124, 0xFF575F65);
         frame(pose, BUTTON_X, BUTTON_Y, 14, 14, menu.getAccentColor());
-        font.draw(pose, "P", leftPos + BUTTON_X + 4, topPos + BUTTON_Y + 3, 0xFF17191B);
+        String pGlyph = "P";
+        float pX = leftPos + BUTTON_X + Math.round((14 - font.width(pGlyph)) / 2.0F);
+        float pY = topPos + BUTTON_Y + Math.round((14 - font.lineHeight) / 2.0F);
+        font.draw(pose, pGlyph, pX, pY, 0xFF17191B);
 
         // Draw each frame from its actual Slot position. AbstractContainerScreen
         // alone renders the 16x16 items and their native hit areas; no pose scaling.
