@@ -69,7 +69,10 @@ public final class TechFurnaceEnergyRenderer implements BlockEntityRenderer<Tech
     private static final float FIRE_RIGHT = 11.50F / 16F;
     private static final float FIRE_BOTTOM = 2.50F / 16F;
     private static final float FIRE_TOP = 6.10F / 16F;
-    private static final float FIRE_NEAR = 0.371F / 16F;
+    // The black panel surface sits at 0.372 model units. Pull the animated sheet
+    // slightly toward the viewing side of that surface to prevent depth fighting,
+    // while keeping it recessed behind the front metal bezel.
+    private static final float FIRE_NEAR = 0.25F / 16F;
     private static final float[][] FIRE_UV = {{0,0},{1,0},{1,1},{0,1}};
     static {
         for (int i = 0; i < PASSES.length; i++) {

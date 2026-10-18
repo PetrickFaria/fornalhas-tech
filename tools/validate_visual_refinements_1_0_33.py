@@ -28,6 +28,7 @@ assert "drawFire(poses.last(), buffers.getBuffer(FIRE_PASSES[fireFrame])," in RE
 assert all(f"case {d} ->" in RENDERER for d in ("SOUTH", "EAST", "WEST"))
 assert "switch (facing)" in RENDERER and "Vector3f.YP.rotationDegrees(facingRotation)" not in RENDERER
 assert "FIRE_LEFT = 4.50F / 16F" in RENDERER and "FIRE_RIGHT = 11.50F / 16F" in RENDERER
+assert "FIRE_NEAR = 0.25F / 16F" in RENDERER
 
 particle_json = json.loads((ASSETS / "particles/small_fire.json").read_text())
 assert particle_json == {"textures": ["minecraft:flame"]}
@@ -38,7 +39,7 @@ for face in ("north", "south", "west", "east", "up", "down"):
 assert png_info(ASSETS / "textures/block/tech_steel.png")[:2] == (64, 64)
 
 # Confirm each explicit quad has outward winding and its plane is the face selected.
-L, R, T, B, D = 4.5/16, 11.5/16, 6.10/16, 2.50/16, 0.372/16
+L, R, T, B, D = 4.5/16, 11.5/16, 6.10/16, 2.50/16, 0.25/16
 quads = {
     "north": ([(L,T,D),(R,T,D),(R,B,D),(L,B,D)], (0,0,-1), "z", D),
     "south": ([(R,T,1-D),(L,T,1-D),(L,B,1-D),(R,B,1-D)], (0,0,1), "z", 1-D),
