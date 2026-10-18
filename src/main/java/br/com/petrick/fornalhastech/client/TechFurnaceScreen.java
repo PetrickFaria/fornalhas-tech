@@ -1,9 +1,11 @@
 package br.com.petrick.fornalhastech.client;
 
-import br.com.petrick.fornalhastech.FornalhasTech;
+import static br.com.petrick.fornalhastech.menu.TechFurnaceLayout.*;
 import br.com.petrick.fornalhastech.menu.TechFurnaceMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -12,54 +14,59 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> {
-    static final ResourceLocation TEX = new ResourceLocation(FornalhasTech.MODID, "textures/gui/tech_furnace.png");
+    private static final ResourceLocation FURNACE_SPRITES = new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
     private static final String[] SLOT_LABELS = {"Núcleo", "Especialização", "Aprimorador"};
-    private static final int[] FLAME_WIDTHS = {2, 4, 4, 6, 8, 8, 10, 12, 12, 10, 8, 8, 6, 4};
-    private static final int[] FLAME_OFFSETS = {5, 4, 4, 3, 2, 2, 1, 0, 0, 1, 2, 2, 3, 4};
     static final int[] COLORS = {0xFF000000, 0xFFE83E3E, 0xFFE8EFF1, 0xFFFFC844, 0xFF43D878, 0xFF42D8ED, 0xFFAD704A};
 
     public TechFurnaceScreen(TechFurnaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        imageWidth = 240;
-        imageHeight = 202;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
         inventoryLabelY = 999;
     }
 
     @Override protected void renderBg(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderTexture(0, TEX);
+        // Same metallic panel, now with independent full-size sections.
         GuiComponent.fill(pose, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xFFB8BCC0);
         frame(pose, 0, 0, imageWidth, imageHeight, 0xFF252A2E);
         frame(pose, 1, 1, imageWidth - 2, imageHeight - 2, 0xFFE0E3E5);
         frame(pose, 4, 20, imageWidth - 8, 35, 0xFF858C91);
-        // Reuse the approved processing and inventory artwork without resampling.
-        blit(pose, leftPos + 32, topPos + 58, 0, 0, 42, 176, 144, 176, 186);
-        GuiComponent.fill(pose, leftPos + 5, topPos + 56, leftPos + 235, topPos + 57, 0xFF575F65);
-        frame(pose, 219, 5, 14, 14, menu.getAccentColor());
-        font.draw(pose, "P", leftPos + 223, topPos + 8, 0xFF17191B);
+        GuiComponent.fill(pose, leftPos + 5, topPos + 57, leftPos + imageWidth - 5, topPos + 58, 0xFF575F65);
+        GuiComponent.fill(pose, leftPos + 5, topPos + 123, leftPos + imageWidth - 5, topPos + 124, 0xFF575F65);
+        frame(pose, BUTTON_X, BUTTON_Y, 14, 14, menu.getAccentColor());
+        font.draw(pose, "P", leftPos + BUTTON_X + 4, topPos + BUTTON_Y + 3, 0xFF17191B);
 
-        // Fixed-color interiors and black frames for the three special slots.
-        specialSlot(pose, 39, 23, 0xFF43D878);  // core: green
-        specialSlot(pose, 111, 23, 0xFFFFC844); // module: yellow
-        specialSlot(pose, 183, 23, 0xFFE83E3E); // accelerator: red
+        // Draw each frame from its actual Slot position. AbstractContainerScreen
+        // alone renders the 16x16 items and their native hit areas; no pose scaling.
+        for (int i = 0; i < menu.slots.size(); i++) {
+            Slot slot = menu.slots.get(i);
+            if (i == 3) specialSlot(pose, slot.x - 1, slot.y - 1, 0xFF43D878);
+            else if (i == 4) specialSlot(pose, slot.x - 1, slot.y - 1, 0xFFFFC844);
+            else if (i == 5) specialSlot(pose, slot.x - 1, slot.y - 1, 0xFFE83E3E);
+            else nativeSlot(pose, slot.x - 1, slot.y - 1);
+        }
 
-        // Vanilla-style flame meter: the remaining burn time fills upward.
+        // Native furnace sprites, cropped at 1:1 logical pixels from a 256x256 atlas.
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.setShaderTexture(0, FURNACE_SPRITES);
+        sprite(pose, FIRE_X, FIRE_Y, 56, 36, 14, 14);
+        sprite(pose, ARROW_X, ARROW_Y, 79, 34, 24, 16);
         int flameRows = menu.getBurnProgress();
-        for (int row = 14 - flameRows; row < 14; row++) {
-            if (row < 0 || row >= FLAME_WIDTHS.length) continue;
-            int y = topPos + 78 + row;
-            int x = leftPos + 88 + FLAME_OFFSETS[row];
-            int width = FLAME_WIDTHS[row];
-            GuiComponent.fill(pose, x, y, x + width, y + 1, row < 5 ? 0xFFFFD66A : 0xFFE7772D);
-        }
-
-        // Progress arrow is filled from left to right, independently of fuel.
+        if (flameRows > 0) sprite(pose, FIRE_X, FIRE_Y + 14 - flameRows,
+                176, 14 - flameRows, 14, flameRows);
         int progress = menu.getCookProgress();
-        if (progress > 0) {
-            int fillWidth = Math.min(24, progress);
-            GuiComponent.fill(pose, leftPos + 112, topPos + 83, leftPos + 112 + fillWidth, topPos + 87, menu.getAccentColor());
-            GuiComponent.fill(pose, leftPos + 112, topPos + 83, leftPos + 112 + fillWidth, topPos + 84, 0xFFE7F2F4);
-            if (fillWidth >= 21) GuiComponent.fill(pose, leftPos + 132, topPos + 81, leftPos + 136, topPos + 89, menu.getAccentColor());
-        }
+        if (progress > 0) sprite(pose, ARROW_X, ARROW_Y, 176, 14, progress, 16);
+    }
+
+    private void sprite(PoseStack pose, int x, int y, int u, int v, int w, int h) {
+        GuiComponent.blit(pose, leftPos + x, topPos + y, (float) u, (float) v, w, h, 256, 256);
+    }
+
+    private void nativeSlot(PoseStack pose, int x, int y) {
+        GuiComponent.fill(pose, leftPos + x, topPos + y, leftPos + x + 18, topPos + y + 18, 0xFF373737);
+        GuiComponent.fill(pose, leftPos + x + 1, topPos + y + 1, leftPos + x + 18, topPos + y + 18, 0xFFFFFFFF);
+        GuiComponent.fill(pose, leftPos + x + 1, topPos + y + 1, leftPos + x + 17, topPos + y + 17, 0xFF8B8B8B);
     }
 
     private void specialSlot(PoseStack pose, int x, int y, int interiorColor) {
@@ -78,9 +85,9 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
         Component title = Component.translatable("container.fornalhastech.tech_furnace");
         font.draw(pose, title, (imageWidth - font.width(title)) / 2.0F, 6, 0xFF17191B);
         for (int i = 0; i < SLOT_LABELS.length; i++) {
-            font.draw(pose, SLOT_LABELS[i], 48 + i * 72 - font.width(SLOT_LABELS[i]) / 2.0F, 44, 0xFF252A2E);
+            font.draw(pose, SLOT_LABELS[i], SPECIAL_X + 8 + i * SPECIAL_STEP - font.width(SLOT_LABELS[i]) / 2.0F, LABEL_Y, 0xFF252A2E);
         }
-        font.draw(pose, Component.translatable("container.inventory"), 40, 109, 0xFF33383B);
+        font.draw(pose, Component.translatable("container.inventory"), INVENTORY_X, INVENTORY_TITLE_Y, 0xFF33383B);
     }
 
     @Override public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
@@ -91,15 +98,15 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
             int selected = Math.max(0, Math.min(6, menu.getVisualColorIndex()));
             int color = COLORS[selected];
             // Frames coincide with vanilla's slot background origin (Slot.x/y minus one).
-            frame(pose, 87, 58, 18, 18, color);   // ingredient
-            frame(pose, 87, 94, 18, 18, color);   // fuel
-            frame(pose, 147, 76, 18, 18, color);  // result
+            frame(pose, INPUT_X - 1, INPUT_Y - 1, 18, 18, color);   // ingredient
+            frame(pose, INPUT_X - 1, FUEL_Y - 1, 18, 18, color);   // fuel
+            frame(pose, OUTPUT_X - 1, OUTPUT_Y - 1, 18, 18, color);  // result
         }
         renderTooltip(pose, mouseX, mouseY);
     }
 
     @Override public boolean mouseClicked(double x, double y, int button) {
-        if (button == 0 && inside(x, y, leftPos + 219, topPos + 5, 14, 14)) {
+        if (button == 0 && inside(x, y, leftPos + BUTTON_X, topPos + BUTTON_Y, 14, 14)) {
             Minecraft.getInstance().setScreen(new TechFurnaceCustomizationScreen(menu));
             return true;
         }

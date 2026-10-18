@@ -17,6 +17,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.ForgeHooks;
+import static br.com.petrick.fornalhastech.menu.TechFurnaceLayout.*;
 
 public class TechFurnaceMenu extends AbstractContainerMenu {
     private final Container furnace;
@@ -49,37 +50,37 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
         this.pos = pos;
 
         // Centered processing area and three equally spaced special slots.
-        addSlot(new Slot(container, 0, 88, 59) {
+        addSlot(new Slot(container, 0, INPUT_X, INPUT_Y) {
             @Override public boolean mayPlace(ItemStack stack) { return !isComponent(stack); }
         });
-        addSlot(new Slot(container, 1, 88, 95) {
+        addSlot(new Slot(container, 1, INPUT_X, FUEL_Y) {
             @Override public boolean mayPlace(ItemStack stack) {
                 return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
             }
         });
-        addSlot(new Slot(container, 2, 148, 77) {
+        addSlot(new Slot(container, 2, OUTPUT_X, OUTPUT_Y) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
             @Override public void onTake(Player player, ItemStack stack) {
                 if (container instanceof TechFurnaceEntity entity) entity.awardPendingExperience(player);
                 super.onTake(player, stack);
             }
         });
-        addSlot(new Slot(container, 3, 40, 24) {
+        addSlot(new Slot(container, 3, SPECIAL_X, SPECIAL_Y) {
             @Override public boolean mayPlace(ItemStack stack) { return isCore(stack); }
         });
-        addSlot(new Slot(container, 4, 112, 24) {
+        addSlot(new Slot(container, 4, SPECIAL_X + SPECIAL_STEP, SPECIAL_Y) {
             @Override public boolean mayPlace(ItemStack stack) { return isModule(stack); }
         });
-        addSlot(new Slot(container, 5, 184, 24) {
+        addSlot(new Slot(container, 5, SPECIAL_X + 2 * SPECIAL_STEP, SPECIAL_Y) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
         });
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(inventory, col + row * 9 + 9, 40 + col * 18, 120 + row * 18));
+                addSlot(new Slot(inventory, col + row * 9 + 9, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
             }
         }
-        for (int col = 0; col < 9; col++) addSlot(new Slot(inventory, col, 40 + col * 18, 178));
+        for (int col = 0; col < 9; col++) addSlot(new Slot(inventory, col, INVENTORY_X + col * 18, HOTBAR_Y));
         for (int i = 0; i < 6; i++) addDataSlot(dataSlot(i));
     }
 
@@ -123,7 +124,7 @@ public class TechFurnaceMenu extends AbstractContainerMenu {
     }
 
     public int getCookProgress() { return syncedCookTotal <= 0 ? 0 : Math.min(24, syncedCook * 24 / syncedCookTotal); }
-    public int getBurnProgress() { return syncedBurnTotal <= 0 ? 0 : Math.min(13, syncedBurn * 13 / syncedBurnTotal); }
+    public int getBurnProgress() { return syncedBurnTotal <= 0 || syncedBurn <= 0 ? 0 : Math.min(14, (syncedBurn * 14 + syncedBurnTotal - 1) / syncedBurnTotal); }
     public int getVisualColorIndex() { return syncedColor; }
     public int getCoreTier() { return syncedTier; }
     public BlockPos getBlockPos() { return pos; }
