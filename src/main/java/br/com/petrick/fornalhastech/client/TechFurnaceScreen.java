@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> {
-    private static final ResourceLocation FURNACE_SPRITES = new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
+    private static final ResourceLocation FURNACE_SPRITES = new ResourceLocation("fornalhastech", "textures/gui/furnace_indicators.png");
     private static final String[] SLOT_LABELS = {"Núcleo", "Especialização", "Aprimorador"};
     static final int[] COLORS = {0xFF000000, 0xFFE83E3E, 0xFFE8EFF1, 0xFFFFC844, 0xFF43D878, 0xFF42D8ED, 0xFFAD704A};
 
@@ -46,7 +46,9 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
             else nativeSlot(pose, slot.x - 1, slot.y - 1);
         }
 
-        // Native furnace sprites, cropped at 1:1 logical pixels from a 256x256 atlas.
+        // Original furnace sprites at 1:1; only their baked gray background is transparent.
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, FURNACE_SPRITES);
@@ -57,6 +59,7 @@ public class TechFurnaceScreen extends AbstractContainerScreen<TechFurnaceMenu> 
                 176, 14 - flameRows, 14, flameRows);
         int progress = menu.getCookProgress();
         if (progress > 0) sprite(pose, ARROW_X, ARROW_Y, 176, 14, progress, 16);
+        RenderSystem.disableBlend();
     }
 
     private void sprite(PoseStack pose, int x, int y, int u, int v, int w, int h) {
