@@ -18,7 +18,7 @@ import net.minecraft.core.Direction;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-/** Two cached texture passes interpolate five neutral frames at the existing recessed depth.
+/** Two cached texture passes interpolate sixteen neutral frames at the existing recessed depth.
  * Only masked pixels render. There is no static emissive surface underneath in the world model.
  * Each sheet contains N,S,W,E,U in five 64px rows. All metal stays in the baked model.
  */

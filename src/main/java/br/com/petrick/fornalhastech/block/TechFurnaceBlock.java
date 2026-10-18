@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import br.com.petrick.fornalhastech.registry.ModBlockEntities;
+import br.com.petrick.fornalhastech.registry.ModParticles;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -49,12 +49,12 @@ public class TechFurnaceBlock extends BaseEntityBlock {
    case 4 -> 0xFF43D878;
    case 5 -> 0xFF42D8ED;
    case 6 -> 0xFFAD704A;
-   default -> 0xFF9AA6AA;
+   default -> 0xFF000000;
   };
  }
  @Override public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
   if (state.getValue(MODE) == 0 && state.getValue(LIT)) spawnVanillaFurnaceParticles(state, level, pos, random);
-  if (!state.getValue(COOKING) || random.nextFloat() >= 0.7875F) return;
+  if (state.getValue(VISUAL_COLOR) == 0 || !state.getValue(COOKING) || random.nextFloat() >= 0.7875F) return;
   int color = getTechnologyColor(state.getValue(VISUAL_COLOR));
   float red = ((color >> 16) & 255) / 255F;
   float green = ((color >> 8) & 255) / 255F;
@@ -76,8 +76,7 @@ public class TechFurnaceBlock extends BaseEntityBlock {
   double frontX = facing.getAxis() == Direction.Axis.X ? facing.getStepX() * 0.52D : across;
   double frontZ = facing.getAxis() == Direction.Axis.Z ? facing.getStepZ() * 0.52D : across;
   double y = centerY + random.nextDouble() * 6.0D / 16.0D;
-  level.addParticle(ParticleTypes.SMOKE, centerX + frontX, y, centerZ + frontZ, 0.0D, 0.0D, 0.0D);
-  level.addParticle(ParticleTypes.FLAME, centerX + frontX, y, centerZ + frontZ, 0.0D, 0.0D, 0.0D);
+  level.addParticle(ModParticles.TECH_FLAME.get(), centerX + frontX, y, centerZ + frontZ, 0.0D, 0.0D, 0.0D);
  }
  @Override public boolean isSignalSource(BlockState state) { return true; }
  @Override public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {

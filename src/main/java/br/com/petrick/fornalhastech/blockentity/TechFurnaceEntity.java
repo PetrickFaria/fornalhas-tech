@@ -187,7 +187,11 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
         BlockState next = old.setValue(TechFurnaceBlock.MODE, mode())
                 .setValue(TechFurnaceBlock.CORE, coreTier() > 0)
                 .setValue(TechFurnaceBlock.VISUAL_COLOR, effectiveVisualColor());
-        if (!next.equals(old)) level.setBlock(worldPosition, next, 3);
+        if (!next.equals(old)) {
+            // Flag 3 synchronizes the state and notifies the light engine when the
+            // selected appearance changes the block's light emission.
+            level.setBlock(worldPosition, next, 3);
+        }
     }
 
     public void setVisualColorIndex(int value) {
@@ -404,3 +408,4 @@ public class TechFurnaceEntity extends BlockEntity implements Container, MenuPro
     }
     @Override public boolean stillValid(Player player) { return worldPosition.distToCenterSqr(player.position()) <= 64.0D; }
 }
+

@@ -4,12 +4,14 @@ import br.com.petrick.fornalhastech.FornalhasTech;
 import br.com.petrick.fornalhastech.registry.ModMenus;
 import br.com.petrick.fornalhastech.registry.ModBlocks;
 import br.com.petrick.fornalhastech.block.TechFurnaceBlock;
+import br.com.petrick.fornalhastech.registry.ModParticles;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 
 @Mod.EventBusSubscriber(modid = FornalhasTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
@@ -25,6 +27,11 @@ public class ClientEvents {
             if (tintIndex != 0) return 0xFFFFFFFF;
             return TechFurnaceBlock.getTechnologyColor(state.getValue(TechFurnaceBlock.VISUAL_COLOR));
         }, ModBlocks.TECH_FURNACE.get());
+    }
+
+    @SubscribeEvent
+    public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.register(ModParticles.TECH_FLAME.get(), TechFlameParticleProvider::new);
     }
 
     @SubscribeEvent

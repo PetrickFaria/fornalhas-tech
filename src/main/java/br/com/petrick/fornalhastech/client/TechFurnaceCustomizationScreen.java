@@ -28,7 +28,7 @@ public class TechFurnaceCustomizationScreen extends Screen {
         super.render(pose,mx,my,delta);
         // Cover the old bitmap arrow and draw the same P control as the main GUI.
         GuiComponent.fill(pose,left+154,top+6,left+170,top+20,0xFFC6C6C6);
-        frame(pose,left+RETURN_X,top+RETURN_Y,RETURN_WIDTH,RETURN_HEIGHT,menu.getAccentColor());
+        neutralFrame(pose,left+RETURN_X,top+RETURN_Y,RETURN_WIDTH,RETURN_HEIGHT);
         pose.pushPose();
         pose.translate(left+RETURN_X+RETURN_WIDTH/2.0F,top+RETURN_Y+RETURN_HEIGHT/2.0F,0);
         pose.scale(0.75F,0.75F,1.0F);
@@ -46,6 +46,13 @@ public class TechFurnaceCustomizationScreen extends Screen {
         GuiComponent.fill(pose,x,y+h-1,x+w,y+h,color);
         GuiComponent.fill(pose,x,y,x+1,y+h,color);
         GuiComponent.fill(pose,x+w-1,y,x+w,y+h,color);
+    }
+    private void neutralFrame(PoseStack pose,int x,int y,int w,int h){
+        GuiComponent.fill(pose,x,y,x+w,y+h,0xFF101010);
+        GuiComponent.fill(pose,x+1,y+1,x+w-1,y+2,0xFFF0F0F0);
+        GuiComponent.fill(pose,x+1,y+2,x+2,y+h-1,0xFFB8B8B8);
+        GuiComponent.fill(pose,x+2,y+h-2,x+w-1,y+h-1,0xFF555555);
+        GuiComponent.fill(pose,x+w-2,y+2,x+w-1,y+h-2,0xFF777777);
     }
     @Override public boolean mouseClicked(double x,double y,int button){if(button!=0)return super.mouseClicked(x,y,button);
         if(x>=left+RETURN_X&&x<left+RETURN_X+RETURN_WIDTH&&y>=top+RETURN_Y&&y<top+RETURN_Y+RETURN_HEIGHT){returnToMain();return true;}
