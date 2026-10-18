@@ -74,7 +74,7 @@ for angle,face in ((0,"north"),(-90,"east"),(-180,"south"),(-270,"west")):
     assert plane,(face,points)
 
 block=(ROOT/"src/main/java/br/com/petrick/fornalhastech/block/TechFurnaceBlock.java").read_text()
-assert "state.getValue(LIT) && random.nextFloat() < 0.14F" in block and "ParticleTypes.FLAME" in block
+assert "state.getValue(MODE) == 0 && state.getValue(LIT) && random.nextFloat() < 0.14F" in block and "ParticleTypes.FLAME" in block
 assert all(f"case {d} ->" in block for d in ("SOUTH","EAST","WEST")) and "default ->" in block
 assert "!state.getValue(COOKING)" in block and "DustParticleOptions" in block and "random.nextFloat() >= 0.525F" in block
 
