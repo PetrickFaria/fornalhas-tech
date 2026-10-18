@@ -23,7 +23,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(ModParticles.SMALL_FIRE.get(), SmallFlameParticleProvider::new);
+        event.register(ModParticles.SMALL_FIRE.get(), SmallFlameParticleProvider::new);
     }
 
     @SubscribeEvent
